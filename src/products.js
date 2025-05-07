@@ -1,0 +1,61 @@
+const products = [
+    {
+        _id : 1,
+        name: 'gucci belt ',
+        image: './images/belt.jpg',
+        description: ' this is gucci belt made of pure leather and silver plated buckle',
+        brand: 'gucci',
+        category: 'belt',
+        price: 45.99,
+        rating: 4.7,
+        numReviews: 12,
+    },
+
+
+    {
+        _id : 2,
+        name: 'silver bracelet ',
+        image: './images/bracelet.jpg',
+        description: ' this is gold braclet made of pure gold ',
+        brand: 'jain jewellers',
+        category: 'jewellery',
+        price: 145.99,
+        rating: 5,
+        numReviews: 18,
+    },
+    {
+        _id : 3,
+        name: 'gifts ',
+        image: './images/gift.jpg',
+        description: ' this is gift made of pure love and gold buckle',
+        brand: 'gi',
+        category: 'gift',
+        price: 15.99,
+        rating: 3.5,
+        numReviews: 15,
+    },
+    {
+        _id :4,
+        name: 'gucci shoe ',
+        image: './images/gucci-shoe.jpg',
+        description: ' this is gucci shoe made of pure leather and snake on it ',
+        brand: 'gucci',
+        category: 'shoes',
+        price: 245.99,
+        rating: 4.5,
+        numReviews: 10,
+    },
+    {
+        _id : 5,
+        name: 'tommy perfume  ',
+        image: './images/perfume.jpg',
+        description: ' this is tommy hilfiger belt perfume made with pure rose petal and lavender ',
+        brand: 'tommy',
+        category: 'perfumes',
+        price: 25.99,
+        rating: 4.0,
+        numReviews: 22,
+    },
+
+]
+export default products;
