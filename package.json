@@ -8,6 +8,7 @@
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
+    "autoprefixer": "^10.4.21",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "graphql": "^15.5.0",
