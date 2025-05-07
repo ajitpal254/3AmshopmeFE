@@ -14,16 +14,16 @@ const AdminDeleteScreen = () => {
         }).catch(err=>{console.log(err)})
     })
 
-    const products = () => {
-        return AdminProduct.map(product => {
-            return (
-                    <Col key={product._id} md={3}>
-                        <AdminDelete admin={product}/>
-                    </Col>
-                )
-            }
-        )
-    }
+    // const products = () => {
+    //     return AdminProduct.map(product => {
+    //         return (
+    //                 <Col key={product._id} md={3}>
+    //                     <AdminDelete admin={product}/>
+    //                 </Col>
+    //             )
+    //         }
+    //     )
+    // }
 
     return (
         <div>

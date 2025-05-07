@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Nav, Navbar, Button, NavDropdown, Form, FormControl, Container} from 'react-bootstrap';
+import {Nav, Navbar, Button, Form, FormControl, Container} from 'react-bootstrap';
 import {LinkContainer} from 'react-router-bootstrap'
 
 
@@ -19,7 +19,7 @@ export default class Header extends Component {
                             height="50"
                             width="50"
                             className="d-inline-block align-top rounded-circle"
-
+                            alt="Logo"
                         />  &nbsp;
                         <LinkContainer to="/">
 
