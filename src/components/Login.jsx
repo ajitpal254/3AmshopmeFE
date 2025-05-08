@@ -20,7 +20,7 @@ const Login =(props)=>{
         event.preventDefault()
 
         axios({
-            url: "http://localhost:8080/app/login",
+            url: `${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/app/login`,
             dataType: "JSON",
             data: {
                 email: email,

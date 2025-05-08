@@ -120,7 +120,7 @@ class Admin extends Component {
 
 
 
-            axios.post('http://localhost:8080/products/upload', uploadData).then(res => {
+            axios.post(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/products/upload`, uploadData).then(res => {
                 console.log(res);
             }).catch=e=>{
             console.log(e)

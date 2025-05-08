@@ -39,7 +39,7 @@ class SignUp extends Component {
             email:this.state.email,
             password:this.state.password
         }
-        axios.post('http://localhost:8080/app/signup',registered)
+        axios.post(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/app/signup`,registered)
             .then(response =>console.log(response.data))
         window.location= '/'
     }

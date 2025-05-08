@@ -20,7 +20,7 @@ const PrductScreen = ({product}) => {
             price:product.price
         }
 
-            axios.post('http://localhost:8080/addCart',cartAdded).then(function(response) {console.log(response)}).catch(function(err) {console.log(err)})
+            axios.post(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/addCart`,cartAdded).then(function(response) {console.log(response)}).catch(function(err) {console.log(err)})
             //window.location= '/'
 
     }
