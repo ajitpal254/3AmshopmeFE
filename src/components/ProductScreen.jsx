@@ -31,13 +31,13 @@ const PrductScreen = ({product}) => {
         <>
             <Card className="my-3 p-3 rounded">
 
-                <Link to={'/product/'+product._id}>
+                <Link to={`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/product/`+product._id}>
                     <Card.Img src={product.image} variant="top" >
 
                     </Card.Img>
                 </Link>
                 <Card.Body>
-                    <Link to={'/product/'+product._id}>
+                    <Link to={`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/product/`+product._id}>
                         <Card.Title as="div">
                             <strong>{product.name}</strong>
                         </Card.Title>
