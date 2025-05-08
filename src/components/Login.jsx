@@ -19,6 +19,8 @@ const Login =(props)=>{
     const submitForm = (event) => {
         event.preventDefault()
 
+        const env = process.env.NODE_ENV;
+
         axios({
             url: `${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/app/login`,
             dataType: "JSON",

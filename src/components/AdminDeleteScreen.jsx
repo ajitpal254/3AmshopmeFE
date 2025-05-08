@@ -9,9 +9,14 @@ import AdminDelete from "./AdminDelete";
 const AdminDeleteScreen = () => {
     const [AdminProduct, setAdminProduct] = useState([]);
     useEffect(()=>{
-        axios.get('/admin/delete').then(data=>{
-            setAdminProduct(data.data)
-        }).catch(err=>{console.log(err)})
+        const env = process.env.NODE_ENV;
+        axios.get(`${env === 'production' ? process.env.REACT_APP_API_URL_PROD : process.env.REACT_APP_API_URL}/admin/delete`)
+            .then(response => {
+            setAdminProduct(response.data);
+            })
+            .catch(error => {
+            console.log(error);
+            });
     })
 
     // const products = () => {

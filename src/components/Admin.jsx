@@ -118,6 +118,7 @@ class Admin extends Component {
         }
 
 
+        const env = process.env.NODE_ENV;
 
 
             axios.post(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/products/upload`, uploadData).then(res => {

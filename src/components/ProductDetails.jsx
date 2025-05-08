@@ -24,6 +24,8 @@ const ProductDetails = ({match})=> {
             price:product.price
         }
 
+        const env = process.env.NODE_ENV;
+
         axios.post(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/addCart`, cartAdded)
           .then(function(response) { console.log(response) })
           .catch(function(err) { console.log(err) })
