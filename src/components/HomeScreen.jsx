@@ -7,8 +7,10 @@ import ProductScreen from "./ProductScreen";
 const HomeScreen = () => {
     const [Products,setProducts]= useState([]);
     useEffect(()=>{
+        const env = process.env.NODE_ENV;
+
         const fetchProducts = async()=>{
-            const {data}= await axios.get('/products')
+            const {data}= await axios.get(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/products`)
             setProducts(data);
         }
         fetchProducts();
