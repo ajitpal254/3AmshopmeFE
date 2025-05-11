@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { storage } from "../firebaseconfig";
+import { storage } from "../firebaseconfig"; // Import Firebase storage
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 class Admin extends Component {
@@ -25,14 +25,12 @@ class Admin extends Component {
     this.changeDescription = this.changeDescription.bind(this);
     this.changeRating = this.changeRating.bind(this);
     this.changeStock = this.changeStock.bind(this);
-    //this.changeReviews = this.changeReviews.bind(this)
     this.changeBrand = this.changeBrand.bind(this);
     this.changeCategory = this.changeCategory.bind(this);
 
     this.filSelectedHandler = this.filSelectedHandler.bind(this);
-
-    //this.changeUserId=this.changeUserId.bind(this)
   }
+
   changePrice(event) {
     this.setState({
       price: event.target.value,
@@ -51,13 +49,6 @@ class Admin extends Component {
     });
   }
 
-  //changeReviews(event)
-  // {
-  //  this.setState({
-  //  numReviews: event.target.value
-  //})
-  //}
-
   changeRating(event) {
     this.setState({
       rating: event.target.value,
@@ -69,6 +60,7 @@ class Admin extends Component {
       countInStock: event.target.value,
     });
   }
+
   changeName(event) {
     this.setState({
       name: event.target.value,
@@ -80,70 +72,70 @@ class Admin extends Component {
       category: event.target.value,
     });
   }
-  // changeUserId(event) {
-  //  this.setState({
-  //     user: event.target.value
-  //  })
 
-  //}
-filSelectedHandler = async (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64data = reader.result;
-      try {
-        // Replace the endpoint with your backend API that stores the image in MongoDB
-        const response = await axios.post(
-          `${
-            process.env.NODE_ENV === "production"
-              ? process.env.REACT_APP_API_URL_PROD
-              : process.env.REACT_APP_API_URL
-          }/upload`, 
-          { image: base64data, name: file.name }
-        );
-        // Assume your backend returns an image URL or identifier stored in MongoDB
-        this.setState({ image: response.data.url });
-      } catch (error) {
-        console.error("Error uploading file:", error);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-};
-  fileUploadHandler = (event) => {
-    event.preventDefault();
-    const uploadData = {
-      name: this.state.name,
-      price: this.state.price,
-      description: this.state.description,
-      brand: this.state.brand,
-      //numReviews:this.state.reviews,
-      rating: this.state.rating,
-      countInStock: this.state.countInStock,
-      image: this.state.image,
-      category: this.state.category,
-      // users:this.state.users
-    };
+  // File selected handler: Upload image to Firebase
+  filSelectedHandler = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const storageRef = ref(storage, `images/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-    const env = process.env.NODE_ENV;
-
-    axios
-      .post(
-        `${
-          env === "production"
-            ? process.env.REACT_APP_API_URL_PROD
-            : process.env.REACT_APP_API_URL
-        }/products/upload`,
-        uploadData
-      )
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+      // Monitor the upload progress
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // You can monitor upload progress here (optional)
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log("Upload is " + progress + "% done");
+        },
+        (error) => {
+          console.error("Error uploading file:", error);
+        },
+        () => {
+          // Get the download URL when the upload is complete
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            console.log("File available at", downloadURL);
+            this.setState({ image: downloadURL });
+          });
+        }
+      );
+    }
   };
+
+  // Form submission: Upload product details and image URL to backend
+fileUploadHandler = (event) => {
+  event.preventDefault();
+
+  const uploadData = {
+    name: this.state.name,
+    price: this.state.price,
+    description: this.state.description,
+    brand: this.state.brand,
+    rating: this.state.rating,
+    countInStock: this.state.countInStock,
+    image: this.state.image,
+    category: this.state.category,
+  };
+
+  const env = process.env.NODE_ENV;
+  axios
+    .post(
+      `${
+        env === "production"
+          ? process.env.REACT_APP_API_URL_PROD
+          : process.env.REACT_APP_API_URL
+      }/admin/upload`,
+      uploadData
+    )
+    .then((res) => {
+      console.log("Upload successful:", res.data);
+      window.location.href = "/"; // Redirect to homepage
+    })
+    .catch((e) => {
+      console.error("Upload failed:", e);
+      alert("Failed to submit product. Please try again."); // Popup on error
+    });
+};
 
   render() {
     return (
@@ -178,7 +170,6 @@ filSelectedHandler = async (event) => {
             value={this.state.brand}
             className="form-control form-group"
           />
-
           <input
             type="text"
             placeholder="Product Rating"
@@ -200,7 +191,6 @@ filSelectedHandler = async (event) => {
             value={this.state.category}
             className="form-control form-group"
           />
-
           <input
             type="submit"
             className="btn btn-danger btn-block"
@@ -210,7 +200,6 @@ filSelectedHandler = async (event) => {
       </div>
     );
   }
-
-  changeUser(event) {}
 }
+
 export default Admin;

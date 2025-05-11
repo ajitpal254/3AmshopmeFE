@@ -40,7 +40,7 @@ function App() {
                 <Route path="/cart" component={CartScreen} exact  />
             <Route path="/" component={HomeScreen} exact />
             <Route path="/products/:id" component={ProductDetails}  />
-            <Route path="/products/upload" component={Admin} />
+            <Route path="/admin/upload" component={Admin} />
             <Route path="/cart/:id" component={DeleteConfirm} />
             <Route path="/admin/delete" component={AdminDeleteScreen} />
             <Route path="/admin/delete/:id" component={AdminDeleteConfirm} exact/>
