@@ -1,74 +1,106 @@
 import React, {Component} from 'react';
-import {Nav, Navbar, Button, Form, FormControl, Container} from 'react-bootstrap';
+import {Nav, Navbar, Button, Form, FormControl, Container, Dropdown} from 'react-bootstrap';
 import {LinkContainer} from 'react-router-bootstrap'
 
 
 
-export default class Header extends Component {
+export default class Header extends React.Component {
+    handleLogout = () => {
+        console.log("Removing logged in status");
+        localStorage.setItem("loggedIn", "false");
+        if (this.props.setLoggedIn) {
+            this.props.setLoggedIn(false);
+        }
+    }
 
     render() {
-
-
+        const { loggedIn } = this.props;
         return (
-            <>
+            <Navbar bg="primary" variant="dark" expand="lg" collapseOnSelect style={{ padding: '0.5rem 1rem' }}>
+            <Container>
+                <LinkContainer to="/">
+                <Navbar.Brand>
+                    <img
+                    src="/pp_1.jpg"
+                    height="40"
+                    width="40"
+                    className="d-inline-block align-middle rounded-circle"
+                    alt="Logo"
+                    />{' '}
+                    <span style={{ fontWeight: 'bold' }}>3AM Shoppee</span>
+                </Navbar.Brand>
+                </LinkContainer>
 
-                <Navbar bg="dark" expand="lg" variant="dark" collapseOnSelect>
-                    <Container>
-                        <img
-                            src='/pp_1.jpg'
-                            height="50"
-                            width="50"
-                            className="d-inline-block align-top rounded-circle"
-                            alt="Logo"
-                        />  &nbsp;
-                        <LinkContainer to="/">
-
-                            <Navbar.Brand>3AM Shoppee</Navbar.Brand>
+                <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+                <Navbar.Collapse id="responsive-navbar-nav">
+                <Nav className="mr-auto">
+                    <LinkContainer to="/">
+                    <Nav.Link>
+                        <i className="fas fa-home"></i> Home
+                    </Nav.Link>
+                    </LinkContainer>
+                    <LinkContainer to="/cart">
+                    <Nav.Link>
+                        <i className="fas fa-shopping-cart"></i> Cart
+                    </Nav.Link>
+                    </LinkContainer>
+                    {loggedIn && (
+                    <>
+                        <LinkContainer to="/products/upload">
+                        <Nav.Link>
+                            <i className="fas fa-cloud-upload-alt"></i> Admin Upload
+                        </Nav.Link>
                         </LinkContainer>
-
-                        <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-                        <Navbar.Collapse id="basic-navbar-nav">
-                            <Nav className="ml-auto">
-                                <LinkContainer to="/">
-                                    <Nav.Link>
-                                        <i className="fas fa-home"></i>Home</Nav.Link>
-                                </LinkContainer>
-                                <LinkContainer to="/cart">
-                                    <Nav.Link>
-                                        <i className="fas fa-shopping-cart"></i>Cart</Nav.Link>
-                                </LinkContainer>
-                                <LinkContainer to="/app/signup">
-                                    <Nav.Link><i className="fas fa-user"></i>signup</Nav.Link>
-                                </LinkContainer>
-                                <LinkContainer to="/app/login">
-                                    <Nav.Link onClick={() => {
-                                        console.log("Removing loggedIn status")
-                                        localStorage.setItem("loggedIn", "false")
-                                        this.props.setLoggedIn(false)
-                                    }}>Logout </Nav.Link>
-                                </LinkContainer>
-                                {(this.props.loggedIn) ? (
-                                    <>
-                                        <LinkContainer to="/products/upload">
-                                            <Nav.Link><i className="fas fa-admin"></i>Admin Upload</Nav.Link>
-                                        </LinkContainer>
-                                        <LinkContainer to="/admin/delete">
-                                            <Nav.Link><i className="fas fa-admin"></i>Admin Delete</Nav.Link>
-                                        </LinkContainer>
-                                    </>
-                                    ) : ('')
-                                }
-
-                                <Form inline>
-                                    <FormControl type="text" placeholder="Search" className="mr-sm-2"/>
-                                    <Button variant="outline-primary">Search</Button>
-                                </Form>
-                            </Nav>
-                        </Navbar.Collapse>
-                    </Container>
-
-                </Navbar>
-            </>
+                        <LinkContainer to="/admin/delete">
+                        <Nav.Link>
+                            <i className="fas fa-trash-alt"></i> Admin Delete
+                        </Nav.Link>
+                        </LinkContainer>
+                    </>
+                    )}
+                </Nav>
+                <Nav className="ml-auto align-items-center">
+                    <Form inline className="mr-2">
+                    <FormControl type="text" placeholder="Search" className="mr-sm-2" />
+                    <Button variant="outline-light">Search</Button>
+                    </Form>
+                    {loggedIn ? (
+                    <Button variant="outline-warning" onClick={this.handleLogout}>
+                        <i className="fas fa-user"></i> {this.props.username} - Logout
+                    </Button>
+                    ) : (
+                    <Dropdown alignRight>
+                        <Dropdown.Toggle
+                        variant="outline-success"
+                        id="dropdown-login-signup"
+                        style={{
+                            borderRadius: "50%",
+                            backgroundColor: "#28a745",
+                            borderColor: "#28a745",
+                            padding: "0.4rem 0.6rem",
+                        }}
+                        >
+                        <i className="fas fa-user"></i>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu
+                        style={{
+                            borderRadius: "0.25rem",
+                            boxShadow: "0 5px 10px rgba(0,0,0,0.15)",
+                        }}
+                        >
+                        <LinkContainer to="/app/login">
+                            <Dropdown.Item>Login</Dropdown.Item>
+                        </LinkContainer>
+                        <LinkContainer to="/app/signup">
+                            <Dropdown.Item>Sign Up</Dropdown.Item>
+                        </LinkContainer>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    )}
+                </Nav>
+                </Navbar.Collapse>
+            </Container>
+            </Navbar>
         );
     }
 }
