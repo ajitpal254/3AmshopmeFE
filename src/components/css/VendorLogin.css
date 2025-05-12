@@ -1,0 +1,79 @@
+.vendor-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f4f6f9;
+  padding: 20px;
+}
+
+.vendor-login-form {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.vendor-login-form h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.vendor-form-control {
+  margin-bottom: 20px;
+}
+
+.vendor-form-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
+}
+
+.vendor-form-control input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.vendor-login-button {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.vendor-login-button:hover {
+  background-color: #0056b3;
+}
+
+.vendor-error {
+  color: #e74c3c;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.vendor-switch-link {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.vendor-switch-link a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.vendor-switch-link a:hover {
+  text-decoration: underline;
+}

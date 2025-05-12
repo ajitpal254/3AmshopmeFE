@@ -34,7 +34,7 @@ const Cart = ({cart}) => {
                         <option value="3">{cart.quantity + 2}</option>
                         <option value="4">{cart.quantity + 3}</option>
                     </select>
-                    <Link to={'/cart/'+cart._id} >
+                    <Link to={'/cart/delete/'+cart._id} >
                         &nbsp;<Button className="btn-sm btn-outline-danger" ><i className="fas fa-trash"></i> </Button>
                     </Link>
 
