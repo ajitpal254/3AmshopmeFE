@@ -15,21 +15,22 @@ const EmailVerification = () => {
 
   const verifyEmail = async () => {
     setStatus("loading");
+    setMessage("Verifying your email. Please wait...");
+
     try {
       const response = await axios.get(`${baseURL}/vendor/verify/${token}`);
 
-      if (response?.msg) {
+      if (response?.data?.msg) {
         setStatus("success");
+        setMessage("🎉 Your email has been successfully verified! You may now log in.");
       } else {
         setStatus("error");
+        setMessage("❌ Verification failed. Invalid or expired token.");
       }
-
-      setMessage(response?.msg);
     } catch (error) {
       setStatus("error");
       setMessage(
-        error?.response?.data.msg ||
-          "An error occurred during verification. Please try again later."
+        `❌ ${error?.response?.data?.msg || "Something went wrong. Please try again."}`
       );
     }
   };
@@ -39,7 +40,7 @@ const EmailVerification = () => {
       verifyEmail();
     } else {
       setStatus("error");
-      setMessage("Invalid or missing verification token.");
+      setMessage("❌ Invalid or missing verification token.");
     }
   }, [token]);
 
@@ -48,32 +49,37 @@ const EmailVerification = () => {
       case "success":
         return "green";
       case "error":
-        return "red";
+        return "crimson";
+      case "loading":
+        return "#555";
       default:
         return "#333";
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "80px" }}>
-      <h2>Email Verification</h2>
-      <p style={{ color: getColor(), fontSize: "18px", fontWeight: "bold" }}>
-        {status === "loading" ? "Verifying your email..." : message}
+    <div style={{ textAlign: "center", marginTop: "80px", padding: "20px" }}>
+      <h2 style={{ fontSize: "28px", marginBottom: "20px" }}>Email Verification</h2>
+      <p style={{ color: getColor(), fontSize: "20px", fontWeight: "500" }}>
+        {message}
       </p>
+
       {status === "error" && (
         <button
           onClick={verifyEmail}
           style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            borderRadius: "5px",
+            marginTop: "25px",
+            padding: "12px 24px",
+            borderRadius: "6px",
             backgroundColor: "#007BFF",
             color: "#fff",
+            fontSize: "16px",
+            fontWeight: "bold",
             border: "none",
             cursor: "pointer",
           }}
         >
-          Retry Verification
+          🔁 Retry Verification
         </button>
       )}
     </div>
