@@ -2,17 +2,17 @@ import React from 'react';
 import { Button, Card, Badge } from "react-bootstrap";
 import Rating from './Rating'
 import { Link, useHistory } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../actions/cartActions";
 import './ProductScreen.css';
 
 export const ProductScreen = ({ product }) => {
-    const { addToCart } = useCart();
+    const dispatch = useDispatch();
     const history = useHistory();
 
     const handleAddToCart = (e) => {
         e.preventDefault();
-        addToCart(product._id, 1);
-        history.push(`/`);
+        dispatch(addToCart(product._id, 1));
     };
 
     // Calculate actual price and original price based on discount

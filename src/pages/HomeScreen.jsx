@@ -87,7 +87,7 @@ const HomeScreen = () => {
             <CategoryFilter onSelectCategory={handleCategorySelect} />
 
             {loading ? (
-                <div className="text-center my-5">
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
                     <div className="spinner-border text-primary" role="status">
                         <span className="visually-hidden">Loading...</span>
                     </div>
@@ -97,20 +97,25 @@ const HomeScreen = () => {
                     {/* Most Popular Section */}
                     {popularProducts.length > 0 && (
                         <div className="mb-5">
-                            <h2 className="section-title mb-4">
-                                <i className="fas fa-fire text-danger me-2"></i>
-                                Most Popular
-                            </h2>
-                            <Row className="product-grid">
+                            <div className="section-header">
+                                <h2 className="section-title">
+                                    <i className="fas fa-fire text-danger me-2"></i>
+                                    Most Popular
+                                </h2>
+                            </div>
+
+                            {/* Horizontal Scroll for Mobile & Desktop (or Grid for Desktop if preferred, but user asked for sideways) */}
+                            {/* Let's use Grid for Desktop and Horizontal for Mobile as per request "on mobile... scroll sideways" */}
+                            <div className="d-md-none horizontal-scroll-container">
+                                {popularProducts.map((product) => (
+                                    <div key={product._id} className="horizontal-item">
+                                        <ProductScreen product={product} />
+                                    </div>
+                                ))}
+                            </div>
+                            <Row className="d-none d-md-flex product-grid">
                                 {popularProducts.map((product, index) => (
-                                    <Col
-                                        key={product._id}
-                                        sm={12}
-                                        md={6}
-                                        lg={4}
-                                        xl={3}
-                                        className="product-col"
-                                    >
+                                    <Col key={product._id} sm={12} md={6} lg={4} xl={3} className="product-col">
                                         <ProductScreen product={product} />
                                     </Col>
                                 ))}
@@ -123,25 +128,29 @@ const HomeScreen = () => {
                         // Display by Category
                         Object.keys(groupedProducts || {}).map((category) => (
                             <div key={category} className="mb-5">
-                                <div className="d-flex align-items-center justify-content-between mb-3">
-                                    <h2 className="section-title mb-0">{category}</h2>
+                                <div className="section-header">
+                                    <h2 className="section-title">{category}</h2>
                                     <button
-                                        className="btn btn-outline-primary btn-sm"
+                                        className="view-all-btn"
                                         onClick={() => handleCategorySelect(category)}
                                     >
-                                        View All {category}
+                                        View All <i className="fas fa-arrow-right"></i>
                                     </button>
                                 </div>
-                                <Row className="product-grid">
+
+                                {/* Mobile: Horizontal Scroll */}
+                                <div className="d-md-none horizontal-scroll-container">
+                                    {groupedProducts[category].slice(0, 6).map((product) => (
+                                        <div key={product._id} className="horizontal-item">
+                                            <ProductScreen product={product} />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Desktop: Grid */}
+                                <Row className="d-none d-md-flex product-grid">
                                     {groupedProducts[category].slice(0, 4).map((product) => (
-                                        <Col
-                                            key={product._id}
-                                            sm={12}
-                                            md={6}
-                                            lg={4}
-                                            xl={3}
-                                            className="product-col"
-                                        >
+                                        <Col key={product._id} sm={12} md={6} lg={4} xl={3} className="product-col">
                                             <ProductScreen product={product} />
                                         </Col>
                                     ))}
@@ -149,9 +158,16 @@ const HomeScreen = () => {
                             </div>
                         ))
                     ) : (
-                        // Display Filtered List
+                        // Display Filtered List (Grid for all since it's a specific view)
                         <div>
-                            <h2 className="section-title mb-4">{selectedCategory}</h2>
+                            <div className="section-header">
+                                <h2 className="section-title">{selectedCategory}</h2>
+                                {selectedCategory !== 'All' && (
+                                    <button className="view-all-btn" onClick={() => handleCategorySelect('All')}>
+                                        <i className="fas fa-arrow-left me-1"></i> Back to All
+                                    </button>
+                                )}
+                            </div>
                             <Row className="product-grid">
                                 {products.filter(p => p).map((product, index) => (
                                     <Col
@@ -161,7 +177,7 @@ const HomeScreen = () => {
                                         lg={4}
                                         xl={3}
                                         className="product-col"
-                                        style={{ animationDelay: `${index * 0.1}s` }}
+                                        style={{ animationDelay: `${index * 0.05}s` }}
                                     >
                                         <ProductScreen product={product} />
                                     </Col>
@@ -171,13 +187,15 @@ const HomeScreen = () => {
                     )}
 
                     {products.length === 0 && !loading && !error && (
-                        <div className="alert alert-info text-center">
+                        <div className="alert alert-info text-center my-5">
+                            <i className="fas fa-info-circle me-2"></i>
                             No products found.
                         </div>
                     )}
 
                     {error && (
-                        <div className="alert alert-danger text-center">
+                        <div className="alert alert-danger text-center my-5">
+                            <i className="fas fa-exclamation-triangle me-2"></i>
                             Error: {error}
                             <br />
                             <small>Please check your connection or try again later.</small>

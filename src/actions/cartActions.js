@@ -21,7 +21,7 @@ export const getCart = () => async (dispatch) => {
 
         // Map backend cart to frontend format
         const cartItems = data.map(item => ({
-            product: item.id,
+            product: item.product,
             name: item.name,
             image: item.image,
             price: item.price,
@@ -41,7 +41,7 @@ export const getCart = () => async (dispatch) => {
 
 export const addToCart = (id, qty) => async (dispatch, getState) => {
     console.log('ACTION: addToCart', id, qty);
-    const { data } = await api.get(`/api/products/${id}`)
+    const { data } = await api.get(`/products/${id}`)
 
     // Check if item exists to handle DB sync
     const { cart: { cartItems } } = getState()
