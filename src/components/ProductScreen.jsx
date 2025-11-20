@@ -1,47 +1,72 @@
+import React from 'react';
+import { Button, Card, Badge } from "react-bootstrap";
+import Rating from './Rating'
+import { Link, useHistory } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import './ProductScreen.css';
 
-import  React  from 'react';
-import {Button, Card} from "react-bootstrap";
-import Rating  from './Rating'
+const ProductScreen = ({ product }) => {
+    const { addToCart } = useCart();
+    const history = useHistory();
 
-import {Link} from "react-router-dom";
-import axios from "axios";
+    const handleAddToCart = (e) => {
+        e.preventDefault();
+        addToCart(product._id, 1);
+        history.push(`/`);
+    };
 
-const PrductScreen = ({product}) => {
-    const env = process.env.NODE_ENV;
-
-    function addToCart(event) {
-        event.preventDefault()
-
-
-        const cartAdded ={
-           _id:product._id,
-            name: product.name,
-            image: product.image,
-            price:product.price
-        }
-
-
-            axios.post(`${env === 'production'?process.env.REACT_APP_API_URL_PROD:process.env.REACT_APP_API_URL}/addCart`,cartAdded).then(function(response) {console.log(response)}).catch(function(err) {console.log(err)})
-            //window.location= '/'
-
-    }
+    // Calculate discount if product has originalPrice
+    const discount = product.originalPrice
+        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+        : 0;
 
     return (
-        <Card className="my-3 p-3 rounded">
-            <Link to={`/products/${product._id}`}>
-                <Card.Img variant="top" src={product.image} />
+        <Card className="product-card h-100">
+            {discount > 0 && (
+                <Badge bg="danger" className="product-badge">
+                    -{discount}% OFF
+                </Badge>
+            )}
+
+            <Link to={`/products/${product._id}`} className="text-decoration-none">
+                <div className="product-image-container">
+                    <Card.Img
+                        variant="top"
+                        src={product.image}
+                        className="product-image"
+                    />
+                    <div className="product-overlay">
+                        <Button variant="light" className="quick-view-btn">
+                            Quick View
+                        </Button>
+                    </div>
+                </div>
             </Link>
-            <Card.Body>
-                <Link to={`/products/${product._id}`}>
-                    <Card.Title as="div">
-                        <strong>{product.name}</strong>
+
+            <Card.Body className="d-flex flex-column">
+                <Link to={`/products/${product._id}`} className="text-decoration-none text-dark">
+                    <Card.Title as="div" className="product-title-text">
+                        {product.name}
                     </Card.Title>
                 </Link>
-                <Card.Text as="div">
-                    <Rating value={product.rating} text=" reviews" />
+
+                <Card.Text as="div" className="mb-2">
+                    <Rating value={product.rating} text={` ${product.numReviews || 0} reviews`} />
                 </Card.Text>
-                <Card.Text as="h3">${product.price}</Card.Text>
-                <Button variant="dark" block onClick={addToCart}>
+
+                <div className="price-container mb-3">
+                    <span className="current-price">${product.price}</span>
+                    {product.originalPrice && (
+                        <span className="original-price">${product.originalPrice}</span>
+                    )}
+                </div>
+
+                <Button
+                    variant="primary"
+                    className="add-to-cart-btn mt-auto"
+                    onClick={handleAddToCart}
+                >
+                    <i className="fas fa-shopping-cart me-2"></i>
                     Add to Cart
                 </Button>
             </Card.Body>
@@ -49,5 +74,4 @@ const PrductScreen = ({product}) => {
     )
 }
 
-export default PrductScreen;
-
+export default ProductScreen;

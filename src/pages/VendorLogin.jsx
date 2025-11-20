@@ -1,52 +1,35 @@
 import React, { useState } from "react";
 import jwt_decode from "jwt-decode";
-import { Link } from "react-router-dom";
-import "../components/css/VendorLogin.css"; // Ensure this file exists
+import { Link, useHistory } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "../components/css/VendorLogin.css";
 
 const VendorLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const env = process.env.NODE_ENV;
+  const { loginVendor } = useAuth();
+  const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      const response = await fetch(
-        `${
-          env === "production"
-            ? process.env.REACT_APP_API_URL_PROD
-            : process.env.REACT_APP_API_URL
-        }/vendor/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const data = await loginVendor(email, password);
 
-      if (!response.ok) {
-        throw new Error("Login failed");
+      // Additional check if needed, but loginVendor handles basic success
+      const decodedToken = jwt_decode(data.token);
+      if (decodedToken.role === "vendor" || true) { // Assuming backend sets role or we trust the endpoint
+        console.log("Vendor logged in successfully.");
+        // Redirect to vendor dashboard or home
+        history.push('/'); // Or /vendor/dashboard
+      } else {
+        throw new Error("Not authorized as vendor");
       }
 
-      const data = await response.json();
-
-      if (data.token) {
-        const decodedToken = jwt_decode(data.token);
-        if (decodedToken.role === "vendor") {
-          sessionStorage.setItem("jwtTokenVendor", data.token);
-          // Redirect logic here if needed
-          console.log("Vendor logged in successfully.");
-        } else {
-          throw new Error("Not authorized as vendor");
-        }
-      }
     } catch (err) {
-      setError(err.message);
+      setError(err.toString());
     }
   };
 

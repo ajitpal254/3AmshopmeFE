@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   Button,
   Col,
@@ -10,52 +9,38 @@ import {
   Row,
   Modal,
 } from "react-bootstrap";
+import api from "../utils/api";
 
-const DeleteConfirm = ({ match }) => {
+const DeleteConfirm = () => {
   const history = useHistory();
-  const env = process.env.NODE_ENV;
+  const { id } = useParams();
   const [cart, setCart] = useState({});
   const [show, setShow] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await axios.get(
-          `${
-            env === "production"
-              ? process.env.REACT_APP_API_URL_PROD
-              : process.env.REACT_APP_API_URL
-          }/cart/${match.params.id}`
-        );
+        const { data } = await api.get(`/cart/${id}`);
         setCart(data);
       } catch (error) {
         console.log(error);
       }
     };
     fetchData();
-  }, [env, match.params.id]);
+  }, [id]);
 
   const handleClose = () => {
     setShow(false);
     history.push("/cart");
   };
 
-  const deleteFromCart = () => {
-    axios
-      .delete(
-        `${
-          env === "production"
-            ? process.env.REACT_APP_API_URL_PROD
-            : process.env.REACT_APP_API_URL
-        }/cart/${match.params.id}`
-      )
-      .then((response) => {
-        console.log(response.data);
-        handleClose();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const deleteFromCart = async () => {
+    try {
+      await api.delete(`/cart/${id}`);
+      handleClose();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

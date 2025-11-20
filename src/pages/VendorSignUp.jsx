@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useHistory, Link } from "react-router-dom";
-import "../components/css/VendorSignUp.css"; // Make sure to create this CSS file
+import { useAuth } from "../context/AuthContext";
+import "../components/css/VendorSignUp.css";
 
 function VendorSignUp() {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ function VendorSignUp() {
 
   const [niche, setNiche] = useState("");
   const history = useHistory();
-  const env = process.env.NODE_ENV;
+  const { signupVendor } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -74,38 +75,23 @@ function VendorSignUp() {
     }
 
     const submissionData = {
-      ...formData,
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
       businessCategory: selectedCategory,
       niche: niche,
+      phone: formData.phone,
+      website: formData.website
     };
 
     try {
-      const response = await fetch(
-        `${
-          env === "production"
-            ? process.env.REACT_APP_API_URL_PROD
-            : process.env.REACT_APP_API_URL
-        }/vendor/signup`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(submissionData),
-        }
+      await signupVendor(submissionData);
+      alert(
+        "Sign up successful! A verification email has been sent. Please verify your email before logging in."
       );
-
-      if (response.ok) {
-        alert(
-          "Sign up successful! A verification email has been sent. Please verify your email before logging in."
-        );
-        history.push("/vendor/login");
-      } else {
-        const data = await response.json();
-        setError(data.error || "Sign up failed. Please try again.");
-      }
+      history.push("/vendor/login");
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError(err.toString());
     }
   };
 
@@ -197,8 +183,8 @@ function VendorSignUp() {
               type="text"
               id="niche"
               name="niche"
-              value={formData.niche}
-              onChange={handleChange}
+              value={niche}
+              onChange={(e) => setNiche(e.target.value)}
               placeholder={`Describe your niche in ${selectedCategory}`}
             />
             {showNicheTooltip && (

@@ -1,0 +1,21 @@
+.loading-spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    min-height: 200px;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3rem;
+}
+
+.loading-message {
+    margin-top: 1rem;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 1.1rem;
+}

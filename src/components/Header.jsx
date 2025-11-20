@@ -1,160 +1,144 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  Nav,
   Navbar,
-  Button,
+  Nav,
+  Container,
   Form,
   FormControl,
-  Container,
-  Dropdown,
+  Button,
+  NavDropdown,
 } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { withRouter } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
-class Header extends React.Component {
-  state = {
-    searchQuery: "",
-  };
+const Header = ({ history }) => {
+  const [keyword, setKeyword] = useState("");
+  const { user, logoutUser, vendor, logoutVendor } = useAuth();
+  const { cartItems } = useCart();
 
-  handleLogout = () => {
-    if (this.props.handleLogout) {
-      this.props.handleLogout();
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (keyword.trim()) {
+      history.push(`/search?keyword=${keyword}`);
     } else {
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("token");
-      localStorage.removeItem("username");
-      localStorage.removeItem("isActualAdmin");
-      this.props.history.push("/app/login");
-      window.location.reload();
+      history.push("/");
     }
   };
 
-  onSearchChange = (event) => {
-    this.setState({ searchQuery: event.target.value });
+  const handleLogout = () => {
+    logoutUser();
+    history.push("/app/login");
   };
 
-  handleSearch = (event) => {
-    event.preventDefault();
-    const { searchQuery } = this.state;
-    if (searchQuery.trim()) {
-      this.props.history.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
+  const handleVendorLogout = () => {
+    logoutVendor();
+    history.push("/vendor/login");
   };
 
-  render() {
-    const { loggedIn, username, isUserAdmin } = this.props;
-
-    return (
-      <Navbar
-        bg="primary"
-        variant="dark"
-        expand="lg"
-        collapseOnSelect
-        style={{ padding: "0.5rem 1rem" }}
-      >
+  return (
+    <header>
+      <Navbar expand="lg" collapseOnSelect className="custom-navbar glass-effect">
         <Container>
           <LinkContainer to="/">
-            <Navbar.Brand>
-              <img
-                src="/pp_1.jpg"
-                height="40"
-                width="40"
-                className="d-inline-block align-middle rounded-circle"
-                alt="Logo"
-              />{" "}
-              <span style={{ fontWeight: "bold" }}>3AM Shoppee</span>
+            <Navbar.Brand className="brand-text">
+              <i className="fas fa-shopping-bag me-2"></i>
+              <span className="brand-name">3AMSHOPPEE</span>
             </Navbar.Brand>
           </LinkContainer>
-
-          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="mr-auto">
-              <LinkContainer to="/">
-                <Nav.Link>
-                  <i className="fas fa-home"></i> Home
-                </Nav.Link>
-              </LinkContainer>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Form onSubmit={submitHandler} className="d-flex ms-auto me-3 search-form">
+              <FormControl
+                type="text"
+                placeholder="Search Products..."
+                className="search-input border-0"
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+              <Button type="submit" variant="outline-primary" className="search-btn rounded-pill ms-1">
+                <i className="fas fa-search"></i>
+              </Button>
+            </Form>
+            <Nav className="ms-auto">
               <LinkContainer to="/cart">
-                <Nav.Link>
-                  <i className="fas fa-shopping-cart"></i> Cart
+                <Nav.Link className="nav-link-custom nav-link-enhanced">
+                  <i className="fas fa-shopping-cart me-1"></i>
+                  <span className="nav-text">CART</span>
+                  {cartItems.length > 0 && (
+                    <span className="badge bg-danger ms-1 cart-badge">
+                      {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                    </span>
+                  )}
                 </Nav.Link>
               </LinkContainer>
 
-              {loggedIn && isUserAdmin && (
-                <>
+              {user && (
+                <LinkContainer to="/orders">
+                  <Nav.Link className="nav-link-custom nav-link-enhanced">
+                    <i className="fas fa-receipt me-1"></i>
+                    <span className="nav-text">ORDERS</span>
+                  </Nav.Link>
+                </LinkContainer>
+              )}
+
+              {user ? (
+                <NavDropdown title={user.name || "User"} id="username" className="nav-link-custom">
+                  <LinkContainer to="/profile">
+                    <NavDropdown.Item className="dropdown-item-custom">Profile</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Item onClick={handleLogout} className="dropdown-item-custom">
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              ) : vendor ? (
+                <NavDropdown title={vendor.name || "Vendor"} id="vendorname" className="nav-link-custom">
+                  <LinkContainer to="/vendor/dashboard">
+                    <NavDropdown.Item className="dropdown-item-custom">Dashboard</NavDropdown.Item>
+                  </LinkContainer>
+                  <NavDropdown.Item onClick={handleVendorLogout} className="dropdown-item-custom">
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              ) : (
+                <LinkContainer to="/app/login">
+                  <Nav.Link className="nav-link-custom nav-link-enhanced">
+                    <i className="fas fa-user me-1"></i>
+                    <span className="nav-text">SIGN IN</span>
+                  </Nav.Link>
+                </LinkContainer>
+              )}
+
+              {user && user.isAdmin && (
+                <NavDropdown title={<><i className="fas fa-user-shield me-1"></i>ADMIN</>} id="adminmenu" className="nav-link-custom admin-dropdown">
+                  <LinkContainer to="/admin/productlist">
+                    <NavDropdown.Item className="dropdown-item-custom">
+                      <i className="fas fa-box me-2"></i>Products
+                    </NavDropdown.Item>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/orderlist">
+                    <NavDropdown.Item className="dropdown-item-custom">
+                      <i className="fas fa-receipt me-2"></i>Orders
+                    </NavDropdown.Item>
+                  </LinkContainer>
                   <LinkContainer to="/admin/upload">
-                    <Nav.Link>
-                      <i className="fas fa-cloud-upload-alt"></i> Admin Upload
-                    </Nav.Link>
+                    <NavDropdown.Item className="dropdown-item-custom">
+                      <i className="fas fa-upload me-2"></i>Upload Product
+                    </NavDropdown.Item>
                   </LinkContainer>
                   <LinkContainer to="/admin/delete">
-                    <Nav.Link>
-                      <i className="fas fa-trash-alt"></i> Admin Delete
-                    </Nav.Link>
+                    <NavDropdown.Item className="dropdown-item-custom">
+                      <i className="fas fa-trash me-2"></i>Delete Product
+                    </NavDropdown.Item>
                   </LinkContainer>
-                </>
+                </NavDropdown>
               )}
-            </Nav>
-
-            <Nav className="ml-auto align-items-center">
-              <Form inline className="mr-2" onSubmit={this.handleSearch}>
-                <FormControl
-                  type="text"
-                  placeholder="Search products..."
-                  className="mr-sm-2"
-                  value={this.state.searchQuery}
-                  onChange={this.onSearchChange}
-                  aria-label="Search"
-                />
-                <Button variant="outline-light" type="submit">
-                  Search
-                </Button>
-              </Form>
-
-              <Dropdown alignRight>
-                <Dropdown.Toggle
-                  variant={loggedIn ? "outline-light" : "outline-success"}
-                  id="dropdown-account"
-                >
-                  <i className="fas fa-user"></i> {loggedIn ? username || "User" : "Account"}
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  style={{
-                    borderRadius: "0.25rem",
-                    boxShadow: "0 5px 10px rgba(0,0,0,0.15)",
-                  }}
-                >
-                  {loggedIn ? (
-                    <>
-                      <Dropdown.Item onClick={this.handleLogout}>
-                        Logout
-                      </Dropdown.Item>
-                    </>
-                  ) : (
-                    <>
-                      <LinkContainer to="/app/login">
-                        <Dropdown.Item>User Login</Dropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to="/app/signup">
-                        <Dropdown.Item>User Sign Up</Dropdown.Item>
-                      </LinkContainer>
-                      <Dropdown.Divider />
-                      <LinkContainer to="/vendor/login">
-                        <Dropdown.Item>Vendor Login</Dropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to="/vendor/signup">
-                        <Dropdown.Item>Vendor Sign Up</Dropdown.Item>
-                      </LinkContainer>
-                    </>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-    );
-  }
-}
+    </header>
+  );
+};
 
 export default withRouter(Header);
