@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import api from "../utils/api";
 
 const CartContext = createContext();
@@ -48,7 +48,7 @@ export const CartProvider = ({ children }) => {
         }
     }, [cartItems, loading]);
 
-    const addToCart = async (id, qty) => {
+    const addToCart = useCallback(async (id, qty) => {
         try {
             const { data } = await api.get(`/products/${id}`);
 
@@ -76,23 +76,23 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
-    };
+    }, []);
 
-    const removeFromCart = async (backendId) => {
+    const removeFromCart = useCallback(async (backendId) => {
         try {
             await api.delete(`/cart/${backendId}`);
             setCartItems((prevItems) => prevItems.filter((x) => x.backendId !== backendId));
         } catch (error) {
             console.error("Error removing from cart:", error);
         }
-    };
+    }, []);
 
-    const clearCart = () => {
+    const clearCart = useCallback(() => {
         setCartItems([]);
         localStorage.removeItem("cartItems");
-    };
+    }, []);
 
-    const createOrder = async () => {
+    const createOrder = useCallback(async () => {
         try {
             const { data } = await api.post("/orders");
             // Cart is cleared on backend, now clear frontend
@@ -103,7 +103,7 @@ export const CartProvider = ({ children }) => {
             console.error("Error creating order:", error);
             throw error; // Propagate error to caller
         }
-    };
+    }, []);
 
     const value = {
         cartItems,

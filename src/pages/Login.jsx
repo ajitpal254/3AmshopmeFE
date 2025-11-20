@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebaseconfig";
-import { NavLink, useHistory } from "react-router-dom";
+import { NavLink, useHistory, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 
@@ -13,16 +13,19 @@ const Login = () => {
   });
   const [loginError, setLoginError] = useState("");
   const history = useHistory();
+  const location = useLocation();
   const { loginUser, user: loggedInUser } = useAuth();
+
+  const redirect = location.search ? location.search.split('=')[1] : '/';
 
   const { email, password, isAdmin } = user;
 
   // Redirect if already logged in
   useEffect(() => {
     if (loggedInUser) {
-      history.push('/');
+      history.push(redirect);
     }
-  }, [loggedInUser, history]);
+  }, [loggedInUser, history, redirect]);
 
   const onChange = (e) => {
     setLoginError("");
@@ -39,7 +42,7 @@ const Login = () => {
 
     try {
       await loginUser(email, password, isAdmin);
-      history.push('/');
+      history.push(redirect);
     } catch (err) {
       setLoginError(err.toString());
     }
@@ -66,7 +69,7 @@ const Login = () => {
 
       localStorage.setItem("token", responseData.token);
       localStorage.setItem("userInfo", JSON.stringify(responseData.user));
-      window.location.href = '/';
+      window.location.href = redirect;
 
     } catch (error) {
       console.error("Google Sign In Error:", error);

@@ -6,14 +6,14 @@ import { getAnalytics } from "firebase/analytics";
 
 // Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCX6CoXASoXATS5qP0XTv-NpzQQ2BWpvqk",
-  authDomain: "lostandfound-ce0a0.firebaseapp.com",
-  databaseURL: "https://lostandfound-ce0a0-default-rtdb.firebaseio.com",
-  projectId: "lostandfound-ce0a0",
-  storageBucket: "lostandfound-ce0a0.appspot.com",
-  messagingSenderId: "3856268723",
-  appId: "1:3856268723:web:2020985d73eec247f4dfc6",
-  measurementId: "G-5SHNL5GCD8",
+  apiKey: "AIzaSyBvZNXo6BZX1H1FirYqCuFEBTrHWP0zXEQ",
+  authDomain: "loginfirebase234.firebaseapp.com",
+  databaseURL: "https://loginfirebase234-default-rtdb.firebaseio.com",
+  projectId: "loginfirebase234",
+  storageBucket: "loginfirebase234.appspot.com",
+  messagingSenderId: "87433981635",
+  appId: "1:87433981635:web:b34945622e1c839672fc76",
+  measurementId: "G-21N31C4WR0",
 };
 
 // Initialize Firebase

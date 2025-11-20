@@ -72,6 +72,13 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (updatedUserData) => {
+        // Update both state and localStorage
+        const updatedUser = { ...user, ...updatedUserData };
+        setUser(updatedUser);
+        localStorage.setItem('userInfo', JSON.stringify(updatedUser));
+    };
+
     // Vendor Actions
     const loginVendor = async (email, password) => {
         try {
@@ -107,6 +114,7 @@ export const AuthProvider = ({ children }) => {
         loginUser,
         signupUser,
         logoutUser,
+        updateUser,
         loginVendor,
         signupVendor,
         logoutVendor

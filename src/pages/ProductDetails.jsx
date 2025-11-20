@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Row, Col, Image, ListGroup, Card, Button, Form } from "react-bootstrap";
+import { Row, Col, Image, ListGroup, Card, Button, Form, Badge } from "react-bootstrap";
 import Rating from "../components/Rating";
 import api from "../utils/api";
 
@@ -57,6 +57,12 @@ const ProductDetails = () => {
     history.push(`/cart/${id}?qty=${qty}`);
   };
 
+  // Calculate discount pricing
+  const hasDiscount = product.isOnDiscount && product.discountPercentage > 0;
+  const displayPrice = hasDiscount
+    ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
+    : product.price;
+
   return (
     <div className="container mt-3">
       <Link className="btn btn-light my-3" to="/">
@@ -77,7 +83,24 @@ const ProductDetails = () => {
                 text={`${product.numReviews} reviews`}
               />
             </ListGroup.Item>
-            <ListGroup.Item>Price: ${product.price}</ListGroup.Item>
+            <ListGroup.Item>
+              <div className="d-flex align-items-center gap-2">
+                <span>Price: </span>
+                {hasDiscount ? (
+                  <>
+                    <Badge bg="danger">{product.discountPercentage}% OFF</Badge>
+                    <span style={{ textDecoration: 'line-through', color: '#999' }}>
+                      ${product.price}
+                    </span>
+                    <span style={{ color: '#28a745', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                      ${displayPrice}
+                    </span>
+                  </>
+                ) : (
+                  <span style={{ fontWeight: 'bold' }}>${product.price}</span>
+                )}
+              </div>
+            </ListGroup.Item>
             <ListGroup.Item>Description: {product.description}</ListGroup.Item>
           </ListGroup>
         </Col>
@@ -88,7 +111,16 @@ const ProductDetails = () => {
                 <Row>
                   <Col>Price:</Col>
                   <Col>
-                    <strong>${product.price}</strong>
+                    {hasDiscount ? (
+                      <div>
+                        <div style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.9rem' }}>
+                          ${product.price}
+                        </div>
+                        <strong style={{ color: '#28a745' }}>${displayPrice}</strong>
+                      </div>
+                    ) : (
+                      <strong>${product.price}</strong>
+                    )}
                   </Col>
                 </Row>
               </ListGroup.Item>
@@ -148,33 +180,59 @@ export const RelatedItemsList = ({ relatedItems }) => {
     <div className="related-items mt-5">
       <h4 className="mb-3">Related Items</h4>
       <div className="d-flex flex-wrap gap-3">
-        {relatedItems.map((item) => (
-          <Link
-            key={item._id}
-            to={`/products/${item._id}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <Card className="shadow-sm border-0" style={{ width: "12rem" }}>
-              <Card.Img
-                variant="top"
-                src={item.image}
-                alt={item.name}
-                style={{ height: "160px", objectFit: "cover" }}
-              />
-              <Card.Body className="text-center">
-                <Card.Title style={{ fontSize: "1rem" }}>
-                  {item.name}
-                </Card.Title>
-                <Card.Text style={{ color: "#28a745", fontWeight: "bold" }}>
-                  ${item.price}
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Link>
-        ))}
+        {relatedItems.map((item) => {
+          const hasDiscount = item.isOnDiscount && item.discountPercentage > 0;
+          const displayPrice = hasDiscount
+            ? (item.price * (1 - item.discountPercentage / 100)).toFixed(2)
+            : item.price;
+
+          return (
+            <Link
+              key={item._id}
+              to={`/products/${item._id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Card className="shadow-sm border-0 position-relative" style={{ width: "12rem" }}>
+                {hasDiscount && (
+                  <Badge bg="danger" className="position-absolute top-0 start-0 m-2">
+                    {item.discountPercentage}% OFF
+                  </Badge>
+                )}
+                <Card.Img
+                  variant="top"
+                  src={item.image}
+                  alt={item.name}
+                  style={{ height: "160px", objectFit: "cover" }}
+                />
+                <Card.Body className="text-center">
+                  <Card.Title style={{ fontSize: "1rem" }}>
+                    {item.name}
+                  </Card.Title>
+                  <Card.Text>
+                    {hasDiscount ? (
+                      <>
+                        <div style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.85rem' }}>
+                          ${item.price}
+                        </div>
+                        <div style={{ color: "#28a745", fontWeight: "bold" }}>
+                          ${displayPrice}
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{ color: "#28a745", fontWeight: "bold" }}>
+                        ${item.price}
+                      </div>
+                    )}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
 };
 
 export default ProductDetails;
+

@@ -5,7 +5,7 @@ import { Link, useHistory } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import './ProductScreen.css';
 
-const ProductScreen = ({ product }) => {
+export const ProductScreen = ({ product }) => {
     const { addToCart } = useCart();
     const history = useHistory();
 
@@ -15,16 +15,18 @@ const ProductScreen = ({ product }) => {
         history.push(`/`);
     };
 
-    // Calculate discount if product has originalPrice
-    const discount = product.originalPrice
-        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-        : 0;
+    // Calculate actual price and original price based on discount
+    const hasDiscount = product.isOnDiscount && product.discountPercentage > 0;
+    const displayPrice = hasDiscount
+        ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
+        : product.price;
+    const originalPrice = hasDiscount ? product.price : (product.originalPrice || null);
 
     return (
         <Card className="product-card h-100">
-            {discount > 0 && (
+            {hasDiscount && (
                 <Badge bg="danger" className="product-badge">
-                    -{discount}% OFF
+                    -{product.discountPercentage}% OFF
                 </Badge>
             )}
 
@@ -55,9 +57,9 @@ const ProductScreen = ({ product }) => {
                 </Card.Text>
 
                 <div className="price-container mb-3">
-                    <span className="current-price">${product.price}</span>
-                    {product.originalPrice && (
-                        <span className="original-price">${product.originalPrice}</span>
+                    <span className="current-price">${displayPrice}</span>
+                    {originalPrice && (
+                        <span className="original-price">${originalPrice}</span>
                     )}
                 </div>
 
@@ -74,4 +76,3 @@ const ProductScreen = ({ product }) => {
     )
 }
 
-export default ProductScreen;

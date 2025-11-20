@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Badge } from 'react-bootstrap';
+import { Table, Button, Badge, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -8,6 +8,7 @@ const OrderListScreen = ({ history }) => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const { user, vendor } = useAuth();
 
     useEffect(() => {
@@ -35,17 +36,44 @@ const OrderListScreen = ({ history }) => {
         }
     };
 
+    const handlePaymentStatusChange = async (orderId, currentStatus) => {
+        try {
+            const newStatus = !currentStatus;
+            await api.put(`/admin/orders/${orderId}/payment`, { isPaid: newStatus });
+            setSuccess('Payment status updated successfully');
+            fetchOrders();
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to update payment status');
+            setTimeout(() => setError(''), 3000);
+        }
+    };
+
+    const handleDeliveryStatusChange = async (orderId, currentStatus) => {
+        try {
+            const newStatus = !currentStatus;
+            await api.put(`/admin/orders/${orderId}/delivery`, { isDelivered: newStatus });
+            setSuccess('Delivery status updated successfully');
+            fetchOrders();
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to update delivery status');
+            setTimeout(() => setError(''), 3000);
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner message="Loading orders..." />;
     }
 
-    if (error) {
-        return <div className="alert alert-danger mt-5">{error}</div>;
-    }
+    const canUpdateStatus = (user && user.isAdmin) || vendor;
 
     return (
         <div className="container mt-4">
             <h1 className="mb-4">{vendor ? 'My Orders' : user && user.isAdmin ? 'All Orders' : 'My Orders'}</h1>
+
+            {error && <div className="alert alert-danger alert-dismissible fade show">{error}</div>}
+            {success && <div className="alert alert-success alert-dismissible fade show">{success}</div>}
 
             {orders.length === 0 ? (
                 <div className="alert alert-info">
@@ -58,6 +86,7 @@ const OrderListScreen = ({ history }) => {
                             <th>ORDER ID</th>
                             <th>USER</th>
                             <th>DATE</th>
+                            <th>ITEMS</th>
                             <th>TOTAL</th>
                             <th>PAID</th>
                             <th>DELIVERED</th>
@@ -67,29 +96,64 @@ const OrderListScreen = ({ history }) => {
                     <tbody>
                         {orders.map((order) => (
                             <tr key={order._id}>
-                                <td>{order._id.substring(0, 10)}...</td>
+                                <td>
+                                    <small>{order._id.substring(0, 10)}...</small>
+                                </td>
                                 <td>{order.User?.name || order.User || 'N/A'}</td>
                                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                <td>${order.totalPrice.toFixed(2)}</td>
+                                <td>{order.orderItems?.length || 0} items</td>
+                                <td>${order.totalPrice?.toFixed(2) || '0.00'}</td>
                                 <td>
-                                    {order.isPaid ? (
-                                        <Badge bg="success">
-                                            <i className="fas fa-check"></i> Paid
-                                        </Badge>
+                                    {canUpdateStatus ? (
+                                        <Form.Check
+                                            type="switch"
+                                            id={`paid-${order._id}`}
+                                            checked={order.isPaid || false}
+                                            onChange={() => handlePaymentStatusChange(order._id, order.isPaid)}
+                                            label={
+                                                <Badge bg={order.isPaid ? "success" : "warning"}>
+                                                    {order.isPaid ? (
+                                                        <><i className="fas fa-check"></i> Paid</>
+                                                    ) : (
+                                                        <><i className="fas fa-times"></i> Pending</>
+                                                    )}
+                                                </Badge>
+                                            }
+                                        />
                                     ) : (
-                                        <Badge bg="warning">
-                                            <i className="fas fa-times"></i> Pending
+                                        <Badge bg={order.isPaid ? "success" : "warning"}>
+                                            {order.isPaid ? (
+                                                <><i className="fas fa-check"></i> Paid</>
+                                            ) : (
+                                                <><i className="fas fa-times"></i> Pending</>
+                                            )}
                                         </Badge>
                                     )}
                                 </td>
                                 <td>
-                                    {order.isDelieved ? (
-                                        <Badge bg="success">
-                                            <i className="fas fa-check"></i> Delivered
-                                        </Badge>
+                                    {canUpdateStatus ? (
+                                        <Form.Check
+                                            type="switch"
+                                            id={`delivered-${order._id}`}
+                                            checked={order.isDelivered || order.isDelieved || false}
+                                            onChange={() => handleDeliveryStatusChange(order._id, order.isDelivered || order.isDelieved)}
+                                            label={
+                                                <Badge bg={(order.isDelivered || order.isDelieved) ? "success" : "secondary"}>
+                                                    {(order.isDelivered || order.isDelieved) ? (
+                                                        <><i className="fas fa-check"></i> Delivered</>
+                                                    ) : (
+                                                        <><i className="fas fa-clock"></i> Processing</>
+                                                    )}
+                                                </Badge>
+                                            }
+                                        />
                                     ) : (
-                                        <Badge bg="secondary">
-                                            <i className="fas fa-times"></i> Processing
+                                        <Badge bg={(order.isDelivered || order.isDelieved) ? "success" : "secondary"}>
+                                            {(order.isDelivered || order.isDelieved) ? (
+                                                <><i className="fas fa-check"></i> Delivered</>
+                                            ) : (
+                                                <><i className="fas fa-clock"></i> Processing</>
+                                            )}
                                         </Badge>
                                     )}
                                 </td>
@@ -114,7 +178,7 @@ const OrderListScreen = ({ history }) => {
                     {vendor
                         ? 'Showing orders that contain your products only'
                         : user && user.isAdmin
-                            ? 'Showing all orders in the system'
+                            ? 'Showing all orders in the system. Toggle switches to update order status.'
                             : 'Showing your personal orders'
                     }
                 </small>
