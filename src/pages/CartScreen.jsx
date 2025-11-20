@@ -63,7 +63,12 @@ const CartScreen = ({ match, location, history }) => {
     }
 
     // Calculate subtotal
-    const subtotal = cartItems.reduce((acc, item) => acc + item.qty * item.price, 0)
+    const subtotal = cartItems.reduce((acc, item) => {
+        if (item && item.qty && item.price) {
+            return acc + item.qty * item.price
+        }
+        return acc
+    }, 0)
 
     // Calculate discount
     let discount = 0
@@ -98,46 +103,44 @@ const CartScreen = ({ match, location, history }) => {
                     </Alert>
                 ) : (
                     <ListGroup variant='flush'>
-                        {cartItems.map((item, index) => (
-                            item && item.product ? (
-                                <ListGroup.Item key={index}>
-                                    <Row>
-                                        <Col md={2}>
-                                            <Image src={item.image} alt={item.name} fluid rounded />
-                                        </Col>
-                                        <Col md={3}>
-                                            <Link to={`/products/${item.product}`}>{item.name}</Link>
-                                        </Col>
-                                        <Col md={2}>${item.price}</Col>
-                                        <Col md={2}>
-                                            <Form.Control
-                                                as='select'
-                                                value={item.qty}
-                                                onChange={(e) =>
-                                                    dispatch(
-                                                        addToCart(item.product, Number(e.target.value))
-                                                    )
-                                                }
-                                            >
-                                                {[...Array(item.countInStock).keys()].map((x) => (
-                                                    <option key={x + 1} value={x + 1}>
-                                                        {x + 1}
-                                                    </option>
-                                                ))}
-                                            </Form.Control>
-                                        </Col>
-                                        <Col md={2}>
-                                            <Button
-                                                type='button'
-                                                variant='light'
-                                                onClick={() => removeFromCartHandler(item.product)}
-                                            >
-                                                <i className='fas fa-trash'></i>
-                                            </Button>
-                                        </Col>
-                                    </Row>
-                                </ListGroup.Item>
-                            ) : null
+                        {cartItems.filter(item => item && item.product).map((item, index) => (
+                            <ListGroup.Item key={item.product || index}>
+                                <Row>
+                                    <Col md={2}>
+                                        <Image src={item.image} alt={item.name} fluid rounded />
+                                    </Col>
+                                    <Col md={3}>
+                                        <Link to={`/products/${item.product}`}>{item.name}</Link>
+                                    </Col>
+                                    <Col md={2}>${item.price}</Col>
+                                    <Col md={2}>
+                                        <Form.Control
+                                            as='select'
+                                            value={item.qty}
+                                            onChange={(e) =>
+                                                dispatch(
+                                                    addToCart(item.product, Number(e.target.value))
+                                                )
+                                            }
+                                        >
+                                            {[...Array(item.countInStock).keys()].map((x) => (
+                                                <option key={x + 1} value={x + 1}>
+                                                    {x + 1}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Col>
+                                    <Col md={2}>
+                                        <Button
+                                            type='button'
+                                            variant='light'
+                                            onClick={() => removeFromCartHandler(item.product)}
+                                        >
+                                            <i className='fas fa-trash'></i>
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </ListGroup.Item>
                         ))}
                     </ListGroup>
                 )}

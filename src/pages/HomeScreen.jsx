@@ -11,6 +11,7 @@ const HomeScreen = () => {
     const [popularProducts, setPopularProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         loadData();
@@ -21,13 +22,14 @@ const HomeScreen = () => {
         try {
             // Fetch popular products
             const popularRes = await api.get('/products?sortBy=popular');
-            const popularData = popularRes.data.products || popularRes.data;
-            setPopularProducts(popularData.slice(0, 4)); // Top 4 popular products
+            const popularData = popularRes?.data?.products || popularRes?.data || [];
+            setPopularProducts(Array.isArray(popularData) ? popularData.slice(0, 4) : []); // Top 4 popular products
 
             // Fetch all products initially
             await fetchProducts();
         } catch (error) {
             console.error("Error loading data:", error);
+            setError(error.message || "Failed to load data");
         } finally {
             setLoading(false);
         }
@@ -48,6 +50,7 @@ const HomeScreen = () => {
             }
         } catch (error) {
             console.error("Error fetching products:", error);
+            setError(error.message || "Failed to fetch products");
         } finally {
             setLoading(false);
         }
@@ -63,12 +66,15 @@ const HomeScreen = () => {
         if (selectedCategory !== 'All') return null;
 
         const grouped = {};
-        products.forEach(product => {
-            if (!grouped[product.category]) {
-                grouped[product.category] = [];
-            }
-            grouped[product.category].push(product);
-        });
+        if (Array.isArray(products)) {
+            products.forEach(product => {
+                const category = product.category || 'Uncategorized';
+                if (!grouped[category]) {
+                    grouped[category] = [];
+                }
+                grouped[category].push(product);
+            });
+        }
         return grouped;
     };
 
@@ -147,7 +153,7 @@ const HomeScreen = () => {
                         <div>
                             <h2 className="section-title mb-4">{selectedCategory}</h2>
                             <Row className="product-grid">
-                                {products.map((product, index) => (
+                                {products.filter(p => p).map((product, index) => (
                                     <Col
                                         key={product._id}
                                         sm={12}
@@ -164,9 +170,17 @@ const HomeScreen = () => {
                         </div>
                     )}
 
-                    {products.length === 0 && !loading && (
+                    {products.length === 0 && !loading && !error && (
                         <div className="alert alert-info text-center">
                             No products found.
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="alert alert-danger text-center">
+                            Error: {error}
+                            <br />
+                            <small>Please check your connection or try again later.</small>
                         </div>
                     )}
                 </>
