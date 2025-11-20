@@ -140,35 +140,6 @@ You'll also need:
    npm start
    ```
 
-The application will open automatically in your browser at `http://localhost:3000`
-
-## ⚙️ Configuration
-
-Create a `.env` file in the root directory with the following environment variables:
-
-```env
-# Application Environment
-REACT_APP_ENV=development
-
-# Backend API URLs
-REACT_APP_API_URL=http://localhost:8080
-REACT_APP_API_URL_PROD=https://your-production-api.com
-
-# Cloudinary Configuration
-# Get these from: https://cloudinary.com/console
-REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloud_name
-REACT_APP_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
-
-# Firebase Configuration (if using Firebase)
-# Get these from your Firebase project settings
-REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-REACT_APP_FIREBASE_APP_ID=your_app_id
-```
-
 ### Configuration Details:
 
 - **REACT_APP_API_URL**: The base URL of your backend API server (development)
