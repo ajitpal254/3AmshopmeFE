@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col, ListGroup, Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
-import LoadingSpinner from "../components/LoadingSpinner";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 const OrdersScreen = () => {
     const [orders, setOrders] = useState([]);

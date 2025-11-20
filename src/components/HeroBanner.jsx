@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Carousel } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
 import './HeroBanner.css';
 
 const HeroBanner = () => {
     const [index, setIndex] = useState(0);
+    const history = useHistory();
 
     const handleSelect = (selectedIndex) => {
         setIndex(selectedIndex);
@@ -16,7 +18,7 @@ const HeroBanner = () => {
             subtitle: "Shop the Latest Trends",
             cta: "Shop Now",
             bgGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            image: null
+            link: "/search?sortBy=newest"
         },
         {
             id: 2,
@@ -24,7 +26,7 @@ const HeroBanner = () => {
             subtitle: "Selected Items on Sale",
             cta: "View Deals",
             bgGradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-            image: null
+            link: "/search?deals=true"
         },
         {
             id: 3,
@@ -32,7 +34,7 @@ const HeroBanner = () => {
             subtitle: "On Orders Over $50",
             cta: "Start Shopping",
             bgGradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-            image: null
+            link: "/search" // General shop
         }
     ];
 
@@ -55,7 +57,10 @@ const HeroBanner = () => {
                             <div className="hero-content">
                                 <h1 className="hero-title animate-fade-in">{banner.title}</h1>
                                 <p className="hero-subtitle animate-slide-up">{banner.subtitle}</p>
-                                <button className="hero-cta animate-scale-in">
+                                <button
+                                    className="hero-cta animate-scale-in"
+                                    onClick={() => history.push(banner.link)}
+                                >
                                     {banner.cta}
                                 </button>
                             </div>

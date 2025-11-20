@@ -3,6 +3,12 @@ import { Row, Col } from 'react-bootstrap';
 import { ProductScreen } from "../components/ProductScreen";
 import HeroBanner from "../components/HeroBanner";
 import CategoryFilter from "../components/CategoryFilter";
+import FeaturesSection from "../components/home/FeaturesSection";
+import PromoBanner from "../components/home/PromoBanner";
+import ProductRow from "../components/home/ProductRow";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
+import Message from "../components/shared/Message";
+import useScrollReveal from "../hooks/useScrollReveal";
 import api from "../utils/api";
 import './HomeScreen.css';
 
@@ -12,10 +18,31 @@ const HomeScreen = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [scrollProgress, setScrollProgress] = useState(0);
+
+    // Custom hook for scroll animations
+    useScrollReveal([products, popularProducts, loading]);
 
     useEffect(() => {
         loadData();
+        setupScrollProgress();
+
+        return () => {
+            window.removeEventListener('scroll', handleScrollProgress);
+        };
     }, []);
+
+    // Scroll Progress Bar
+    const handleScrollProgress = () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        setScrollProgress(scrollPercent);
+    };
+
+    const setupScrollProgress = () => {
+        window.addEventListener('scroll', handleScrollProgress);
+    };
 
     const loadData = async () => {
         setLoading(true);
@@ -23,7 +50,7 @@ const HomeScreen = () => {
             // Fetch popular products
             const popularRes = await api.get('/products?sortBy=popular');
             const popularData = popularRes?.data?.products || popularRes?.data || [];
-            setPopularProducts(Array.isArray(popularData) ? popularData.slice(0, 4) : []); // Top 4 popular products
+            setPopularProducts(Array.isArray(popularData) ? popularData.slice(0, 4) : []);
 
             // Fetch all products initially
             await fetchProducts();
@@ -82,83 +109,55 @@ const HomeScreen = () => {
 
     return (
         <div className="home-screen-container">
-            <HeroBanner />
+            {/* Scroll Progress Bar */}
+            <div className="scroll-progress">
+                <div className="scroll-progress-bar" style={{ width: `${scrollProgress}%` }}></div>
+            </div>
 
+            <HeroBanner />
+            <FeaturesSection />
             <CategoryFilter onSelectCategory={handleCategorySelect} />
 
             {loading ? (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-                    <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
+                <LoadingSpinner />
+            ) : error ? (
+                <div className="container my-5">
+                    <Message variant="danger">
+                        <i className="fas fa-exclamation-triangle me-2"></i>
+                        Error: {error}
+                        <br />
+                        <small>Please check your connection or try again later.</small>
+                    </Message>
                 </div>
             ) : (
                 <>
                     {/* Most Popular Section */}
                     {popularProducts.length > 0 && (
-                        <div className="mb-5">
-                            <div className="section-header">
-                                <h2 className="section-title">
-                                    <i className="fas fa-fire text-danger me-2"></i>
-                                    Most Popular
-                                </h2>
-                            </div>
-
-                            {/* Horizontal Scroll for Mobile & Desktop (or Grid for Desktop if preferred, but user asked for sideways) */}
-                            {/* Let's use Grid for Desktop and Horizontal for Mobile as per request "on mobile... scroll sideways" */}
-                            <div className="d-md-none horizontal-scroll-container">
-                                {popularProducts.map((product) => (
-                                    <div key={product._id} className="horizontal-item">
-                                        <ProductScreen product={product} />
-                                    </div>
-                                ))}
-                            </div>
-                            <Row className="d-none d-md-flex product-grid">
-                                {popularProducts.map((product, index) => (
-                                    <Col key={product._id} sm={12} md={6} lg={4} xl={3} className="product-col">
-                                        <ProductScreen product={product} />
-                                    </Col>
-                                ))}
-                            </Row>
-                        </div>
+                        <ProductRow
+                            title="Most Popular"
+                            products={popularProducts}
+                            icon="fas fa-fire text-danger"
+                        />
                     )}
 
                     {/* Main Product Display */}
                     {selectedCategory === 'All' ? (
                         // Display by Category
                         Object.keys(groupedProducts || {}).map((category) => (
-                            <div key={category} className="mb-5">
-                                <div className="section-header">
-                                    <h2 className="section-title">{category}</h2>
-                                    <button
-                                        className="view-all-btn"
-                                        onClick={() => handleCategorySelect(category)}
-                                    >
-                                        View All <i className="fas fa-arrow-right"></i>
-                                    </button>
-                                </div>
-
-                                {/* Mobile: Horizontal Scroll */}
-                                <div className="d-md-none horizontal-scroll-container">
-                                    {groupedProducts[category].slice(0, 6).map((product) => (
-                                        <div key={product._id} className="horizontal-item">
-                                            <ProductScreen product={product} />
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Desktop: Grid */}
-                                <Row className="d-none d-md-flex product-grid">
-                                    {groupedProducts[category].slice(0, 4).map((product) => (
-                                        <Col key={product._id} sm={12} md={6} lg={4} xl={3} className="product-col">
-                                            <ProductScreen product={product} />
-                                        </Col>
-                                    ))}
-                                </Row>
-                            </div>
+                            <ProductRow
+                                key={category}
+                                title={category}
+                                products={groupedProducts[category].slice(0, 4)} // Show top 4 for grid
+                                onViewAll={() => handleCategorySelect(category)}
+                            />
                         ))
-                    ) : (
-                        // Display Filtered List (Grid for all since it's a specific view)
+                    ) : null}
+
+                    {/* Promotional Banner */}
+                    {selectedCategory === 'All' && <PromoBanner />}
+
+                    {selectedCategory !== 'All' ? (
+                        // Display Filtered List
                         <div>
                             <div className="section-header">
                                 <h2 className="section-title">{selectedCategory}</h2>
@@ -184,21 +183,14 @@ const HomeScreen = () => {
                                 ))}
                             </Row>
                         </div>
-                    )}
+                    ) : null}
 
                     {products.length === 0 && !loading && !error && (
-                        <div className="alert alert-info text-center my-5">
-                            <i className="fas fa-info-circle me-2"></i>
-                            No products found.
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="alert alert-danger text-center my-5">
-                            <i className="fas fa-exclamation-triangle me-2"></i>
-                            Error: {error}
-                            <br />
-                            <small>Please check your connection or try again later.</small>
+                        <div className="container my-5">
+                            <Message variant="info">
+                                <i className="fas fa-info-circle me-2"></i>
+                                No products found.
+                            </Message>
                         </div>
                     )}
                 </>

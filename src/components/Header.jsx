@@ -1,32 +1,26 @@
 import React, { useState } from "react";
-import {
-  Navbar,
-  Nav,
-  Container,
-  Form,
-  FormControl,
-  Button,
-  NavDropdown,
-} from "react-bootstrap";
+import { Navbar, Nav, Container, NavDropdown, Button } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { withRouter } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSelector } from "react-redux";
+import SearchBar from "./header/SearchBar";
+import MobileDrawer from "./header/MobileDrawer";
 import "./Header.css";
 
 const Header = ({ history }) => {
-  const [keyword, setKeyword] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
   const { user, logoutUser, vendor, logoutVendor } = useAuth();
   const cart = useSelector((state) => state.cart);
   const cartItems = cart?.cartItems || [];
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    if (keyword.trim()) {
-      history.push(`/search?keyword=${keyword}`);
-    } else {
-      history.push("/");
-    }
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
+  };
+
+  const closeMobileMenu = () => {
+    setShowMobileMenu(false);
   };
 
   const handleLogout = () => {
@@ -41,7 +35,7 @@ const Header = ({ history }) => {
 
   return (
     <header>
-      <Navbar expand="lg" collapseOnSelect className="custom-navbar" sticky="top">
+      <Navbar expand="lg" className="custom-navbar" sticky="top">
         <Container>
           <LinkContainer to="/">
             <Navbar.Brand className="brand-text">
@@ -50,20 +44,18 @@ const Header = ({ history }) => {
             </Navbar.Brand>
           </LinkContainer>
 
-          <Navbar.Toggle aria-controls="basic-navbar-nav" className="border-0" />
+          {/* Mobile Menu Button */}
+          <button
+            className="mobile-menu-btn d-lg-none"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle navigation"
+          >
+            <i className="fas fa-bars"></i>
+          </button>
 
+          {/* Desktop Navigation */}
           <Navbar.Collapse id="basic-navbar-nav">
-            <Form onSubmit={submitHandler} className="search-form d-flex mx-auto">
-              <FormControl
-                type="text"
-                placeholder="Search for products..."
-                className="search-input"
-                onChange={(e) => setKeyword(e.target.value)}
-              />
-              <Button type="submit" className="search-btn">
-                <i className="fas fa-search"></i>
-              </Button>
-            </Form>
+            <SearchBar className="d-flex mx-auto" />
 
             <Nav className="align-items-lg-center ms-auto">
               <LinkContainer to="/cart">
@@ -189,6 +181,16 @@ const Header = ({ history }) => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      <MobileDrawer
+        show={showMobileMenu}
+        onClose={closeMobileMenu}
+        user={user}
+        vendor={vendor}
+        cartItems={cartItems}
+        logoutUser={handleLogout}
+        logoutVendor={handleVendorLogout}
+      />
     </header>
   );
 };

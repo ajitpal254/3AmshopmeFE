@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Badge, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const OrderListScreen = ({ history }) => {
     const [orders, setOrders] = useState([]);

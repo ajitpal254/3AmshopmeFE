@@ -21,10 +21,12 @@ const SearchResultScreen = () => {
       const params = new URLSearchParams(location.search);
       const keyword = params.get('keyword') || '';
       const category = params.get('category') || '';
+      const deals = params.get('deals') || '';
 
       const queryParams = new URLSearchParams({
         ...(keyword && { keyword }),
         ...(category && { category }),
+        ...(deals && { deals }),
         ...(sortBy && { sortBy }),
       });
 
@@ -52,6 +54,7 @@ const SearchResultScreen = () => {
 
   const getSearchKeyword = () => {
     const params = new URLSearchParams(location.search);
+    if (params.get('deals')) return 'Special Deals';
     return params.get('keyword') || params.get('category') || '';
   };
 
@@ -61,8 +64,8 @@ const SearchResultScreen = () => {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2>
-            Search Results
-            {getSearchKeyword() && (
+            {new URLSearchParams(location.search).get('deals') ? 'Special Deals' : 'Search Results'}
+            {getSearchKeyword() && !new URLSearchParams(location.search).get('deals') && (
               <span className="text-muted fs-5"> for "{getSearchKeyword()}"</span>
             )}
           </h2>

@@ -3,7 +3,7 @@ import { Table, Button, Row, Col, Modal, Form, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingSpinner from '../components/shared/LoadingSpinner';
 
 const ProductListScreen = ({ history }) => {
     const [products, setProducts] = useState([]);
