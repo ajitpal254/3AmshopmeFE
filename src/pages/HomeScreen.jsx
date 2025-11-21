@@ -6,6 +6,8 @@ import CategoryFilter from "../components/CategoryFilter";
 import FeaturesSection from "../components/home/FeaturesSection";
 import PromoBanner from "../components/home/PromoBanner";
 import ProductRow from "../components/home/ProductRow";
+import Newsletter from "../components/home/Newsletter";
+import Testimonials from "../components/home/Testimonials";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import Message from "../components/shared/Message";
 import useScrollReveal from "../hooks/useScrollReveal";
@@ -21,7 +23,8 @@ const HomeScreen = () => {
     const [scrollProgress, setScrollProgress] = useState(0);
 
     // Custom hook for scroll animations
-    useScrollReveal([products, popularProducts, loading]);
+    // Pass dependencies to re-run observer when data changes
+    useScrollReveal([products.length, popularProducts.length, selectedCategory]);
 
     useEffect(() => {
         loadData();
@@ -30,6 +33,7 @@ const HomeScreen = () => {
         return () => {
             window.removeEventListener('scroll', handleScrollProgress);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Scroll Progress Bar
@@ -193,6 +197,9 @@ const HomeScreen = () => {
                             </Message>
                         </div>
                     )}
+
+                    <Testimonials />
+                    <Newsletter />
                 </>
             )}
         </div>

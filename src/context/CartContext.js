@@ -12,24 +12,25 @@ export const CartProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     // Fetch cart from backend on mount
+    // DISABLED: Redux is already handling cart state via App.js
+    // Keeping this would cause duplicate fetches and potential infinite loops
+    /*
     useEffect(() => {
         const fetchCart = async () => {
             try {
                 const { data } = await api.get("/cart");
-                // Transform backend cart format to frontend format
                 const formattedItems = data.map((item) => ({
                     product: item._id,
                     name: item.name,
                     image: item.image,
                     price: item.price,
                     qty: item.quantity || 1,
-                    countInStock: 999, // Backend doesn't store this, default high value
-                    backendId: item._id, // Store backend ID for deletion
+                    countInStock: 999,
+                    backendId: item._id,
                 }));
                 setCartItems(formattedItems);
             } catch (error) {
                 console.error("Error fetching cart:", error);
-                // Fallback to localStorage if backend fails
                 const storedCart = localStorage.getItem("cartItems");
                 if (storedCart) {
                     setCartItems(JSON.parse(storedCart));
@@ -39,6 +40,12 @@ export const CartProvider = ({ children }) => {
             }
         };
         fetchCart();
+    }, []);
+    */
+
+    // Set loading to false since Redux handles cart
+    useEffect(() => {
+        setLoading(false);
     }, []);
 
     // Sync to localStorage whenever cart changes

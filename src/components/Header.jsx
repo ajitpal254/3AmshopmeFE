@@ -35,7 +35,7 @@ const Header = ({ history }) => {
 
   return (
     <header>
-      <Navbar expand="lg" className="custom-navbar" sticky="top">
+      <Navbar expand="lg" className="custom-navbar" fixed="top">
         <Container>
           <LinkContainer to="/">
             <Navbar.Brand className="brand-text">
@@ -125,6 +125,11 @@ const Header = ({ history }) => {
                       <LinkContainer to="/vendor/dashboard">
                         <NavDropdown.Item>
                           <i className="fas fa-tags"></i> Coupons
+                        </NavDropdown.Item>
+                      </LinkContainer>
+                      <LinkContainer to="/admin/vendors">
+                        <NavDropdown.Item>
+                          <i className="fas fa-users-cog"></i> Vendor Management
                         </NavDropdown.Item>
                       </LinkContainer>
                     </>

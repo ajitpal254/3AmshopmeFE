@@ -1,7 +1,7 @@
 {
-  "name": "3amshop",
+  "name": "three-am-shop",
   "proxy": "http://localhost:8080",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.3.13",

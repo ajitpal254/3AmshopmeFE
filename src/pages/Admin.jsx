@@ -1,215 +1,247 @@
-import React, { Component } from "react";
-import { storage } from "../firebaseconfig"; // Import Firebase storage
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import React, { useState } from "react";
+import { Container, Row, Col, Form, Button, Card, Alert, Spinner } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import api from "../utils/api";
+import { useAuth } from "../context/AuthContext";
+import { uploadProductImage } from "../utils/cloudinaryUpload";
+import ImageUploader from "../components/form/ImageUploader";
+import "../components/css/ProductUpload.css";
 
-class Admin extends Component {
-  constructor() {
-    super();
+const Admin = () => {
+  const { vendor } = useAuth();
+  const [formData, setFormData] = useState({
+    name: "",
+    price: "",
+    description: "",
+    brand: "",
+    category: "",
+    countInStock: "",
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-    this.state = {
-      image: null,
-      name: "",
-      price: "",
-      description: "",
-      brand: "",
-      numReviews: "",
-      rating: "",
-      countInStock: "",
-      category: "",
-      user: "",
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-    this.changeName = this.changeName.bind(this);
-    this.changePrice = this.changePrice.bind(this);
-    this.changeDescription = this.changeDescription.bind(this);
-    this.changeRating = this.changeRating.bind(this);
-    this.changeStock = this.changeStock.bind(this);
-    this.changeBrand = this.changeBrand.bind(this);
-    this.changeCategory = this.changeCategory.bind(this);
-
-    this.filSelectedHandler = this.filSelectedHandler.bind(this);
-  }
-
-  changePrice(event) {
-    this.setState({
-      price: event.target.value,
-    });
-  }
-
-  changeDescription(event) {
-    this.setState({
-      description: event.target.value,
-    });
-  }
-
-  changeBrand(event) {
-    this.setState({
-      brand: event.target.value,
-    });
-  }
-
-  changeRating(event) {
-    this.setState({
-      rating: event.target.value,
-    });
-  }
-
-  changeStock(event) {
-    this.setState({
-      countInStock: event.target.value,
-    });
-  }
-
-  changeName(event) {
-    this.setState({
-      name: event.target.value,
-    });
-  }
-
-  changeCategory(event) {
-    this.setState({
-      category: event.target.value,
-    });
-  }
-
-  // File selected handler: Upload image to Firebase
-  filSelectedHandler = async (event) => {
-    const file = event.target.files[0];
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
     if (file) {
-      const storageRef = ref(storage, `images/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      // Monitor the upload progress
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          // You can monitor upload progress here (optional)
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
-        },
-        (error) => {
-          console.error("Error uploading file:", error);
-        },
-        () => {
-          // Get the download URL when the upload is complete
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
-            this.setState({ image: downloadURL });
-          });
-        }
-      );
+      if (file.size > 10 * 1024 * 1024) {
+        setError("File size too large (max 10MB)");
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setError("");
     }
   };
 
-  // Form submission: Upload product details and image URL to backend
-  fileUploadHandler = (event) => {
-    event.preventDefault();
-
-    const uploadData = {
-      name: this.state.name,
-      price: this.state.price,
-      description: this.state.description,
-      brand: this.state.brand,
-      rating: this.state.rating,
-      countInStock: this.state.countInStock,
-      image: this.state.image,
-      category: this.state.category,
-    };
-
-    api
-      .post('/admin/upload', uploadData)
-      .then((res) => {
-        console.log("Upload successful:", res.data);
-        window.location.href = "/"; // Redirect to homepage
-      })
-      .catch((e) => {
-        console.error("Upload failed:", e);
-        alert("Failed to submit product. Please try again."); // Popup on error
-      });
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
   };
 
-  render() {
-    return (
-      <div className="container mt-5">
-        <h2 className="text-center mb-4">Upload Product</h2>
-        <form onSubmit={this.fileUploadHandler} className="card p-4 shadow-sm">
-          <div className="mb-3">
-            <label className="form-label">Product Image</label>
-            <input type="file" className="form-control" onChange={this.filSelectedHandler} />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Product Name"
-              onChange={this.changeName}
-              value={this.state.name}
-              className="form-control"
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Product Price"
-              onChange={this.changePrice}
-              value={this.state.price}
-              className="form-control"
-            />
-          </div>
-          <div className="mb-3">
-            <textarea
-              placeholder="Product Description"
-              onChange={this.changeDescription}
-              value={this.state.description}
-              className="form-control"
-              rows="3"
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Product Brand"
-              onChange={this.changeBrand}
-              value={this.state.brand}
-              className="form-control"
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Product Rating"
-              onChange={this.changeRating}
-              value={this.state.rating}
-              className="form-control"
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Product Stock"
-              onChange={this.changeStock}
-              value={this.state.countInStock}
-              className="form-control"
-            />
-          </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              placeholder="Product Category"
-              onChange={this.changeCategory}
-              value={this.state.category}
-              className="form-control"
-            />
-          </div>
-          <input
-            type="submit"
-            className="btn btn-primary w-100"
-            value="Submit"
-          />
-        </form>
-      </div>
-    );
-  }
-}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      let imageUrl = "";
+
+      if (imageFile) {
+        imageUrl = await uploadProductImage(imageFile, (progress) => {
+          setUploadProgress(progress);
+        });
+      } else {
+        setError("Please upload a product image");
+        setLoading(false);
+        return;
+      }
+
+      const productData = {
+        ...formData,
+        image: imageUrl,
+        rating: 0, // Default rating
+      };
+
+      const endpoint = vendor ? "/vendor/upload" : "/admin/upload";
+      await api.post(endpoint, productData);
+      setSuccess("Product uploaded successfully!");
+      setFormData({
+        name: "",
+        price: "",
+        description: "",
+        brand: "",
+        category: "",
+        countInStock: "",
+      });
+      handleRemoveImage();
+      setUploadProgress(0);
+      window.scrollTo(0, 0);
+
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setError(err.response?.data?.message || "Failed to upload product");
+      window.scrollTo(0, 0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="product-upload-container">
+      <Container>
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <Card className="product-upload-card">
+              <div className="product-upload-header">
+                <div className="d-flex justify-content-between align-items-center">
+                  <h2 className="mb-0"><i className="fas fa-cloud-upload-alt me-2"></i>Upload Product</h2>
+                  <Link to={vendor ? "/vendor/products" : "/admin/productlist"} className="btn btn-light btn-sm text-primary fw-bold">
+                    <i className="fas fa-arrow-left me-1"></i> Back
+                  </Link>
+                </div>
+                <p className="mb-0 mt-2 opacity-75">Add a new product to your store</p>
+              </div>
+              <div className="product-upload-body">
+                {error && <Alert variant="danger" dismissible onClose={() => setError("")}>{error}</Alert>}
+                {success && <Alert variant="success" dismissible onClose={() => setSuccess("")}>{success}</Alert>}
+
+                <Form onSubmit={handleSubmit}>
+                  <ImageUploader
+                    imagePreview={imagePreview}
+                    onImageChange={handleImageChange}
+                    onRemove={handleRemoveImage}
+                    uploadProgress={uploadProgress}
+                  />
+
+                  <Row>
+                    <Col md={12}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Product Name</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          placeholder="e.g., Wireless Headphones"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Price ($)</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="price"
+                          value={formData.price}
+                          onChange={handleChange}
+                          placeholder="0.00"
+                          step="0.01"
+                          min="0"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Stock Count</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="countInStock"
+                          value={formData.countInStock}
+                          onChange={handleChange}
+                          placeholder="0"
+                          min="0"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Brand</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="brand"
+                          value={formData.brand}
+                          onChange={handleChange}
+                          placeholder="e.g., Sony"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Category</Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="category"
+                          value={formData.category}
+                          onChange={handleChange}
+                          placeholder="e.g., Electronics"
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Form.Group className="mb-4">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      placeholder="Detailed product description..."
+                      rows={4}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Button
+                    type="submit"
+                    className="btn-upload"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-check-circle me-2"></i>
+                        Submit Product
+                      </>
+                    )}
+                  </Button>
+                </Form>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+};
 
 export default Admin;

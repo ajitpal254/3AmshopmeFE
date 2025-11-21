@@ -110,7 +110,7 @@ const VendorDashboard = () => {
             <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
                 <Tab eventKey="products" title={<><i className="fas fa-box me-2"></i>Products</>}>
                     <div className="text-center py-5">
-                        <p>Go to <a href="/admin/productlist">Product List</a> to manage your products</p>
+                        <p>Go to <a href="/vendor/products">Product List</a> to manage your products</p>
                     </div>
                 </Tab>
 
@@ -362,7 +362,11 @@ const VendorDashboard = () => {
 
                 <Tab eventKey="orders" title={<><i className="fas fa-shopping-bag me-2"></i>Orders</>}>
                     <div className="text-center py-5">
-                        <p>View your orders here (coming soon)</p>
+                        <p className="mb-3">View and manage orders for your products.</p>
+                        <Button href="/vendor/orders" variant="primary">
+                            <i className="fas fa-external-link-alt me-2"></i>
+                            Go to Orders
+                        </Button>
                     </div>
                 </Tab>
             </Tabs>

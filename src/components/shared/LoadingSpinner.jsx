@@ -1,13 +1,15 @@
 import React from 'react';
-import { Spinner } from 'react-bootstrap';
 import './LoadingSpinner.css';
 
 const LoadingSpinner = ({ message = 'Loading...' }) => {
     return (
         <div className="loading-spinner-container">
-            <Spinner animation="border" role="status" variant="primary" className="loading-spinner">
-                <span className="visually-hidden">Loading...</span>
-            </Spinner>
+            <div className="modern-spinner">
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-ring"></div>
+                <div className="spinner-dot"></div>
+            </div>
             {message && <p className="loading-message">{message}</p>}
         </div>
     );

@@ -1,79 +1,72 @@
-.vendor-login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.vendor-login-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
-  background: #f4f6f9;
-  padding: 20px;
 }
 
-.vendor-login-form {
-  background: white;
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+.vendor-login-card {
+  border-radius: 20px;
+  overflow: hidden;
 }
 
-.vendor-login-form h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #333;
+.vendor-login-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
 }
 
-.vendor-form-control {
-  margin-bottom: 20px;
+.vendor-login-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('https://www.transparenttextures.com/patterns/cubes.png');
+  opacity: 0.1;
 }
 
-.vendor-form-control label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #555;
+.icon-circle {
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
 
-.vendor-form-control input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.vendor-login-button {
-  width: 100%;
-  background-color: #007bff;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+.cursor-pointer {
   cursor: pointer;
-  transition: background 0.3s ease;
 }
 
-.vendor-login-button:hover {
-  background-color: #0056b3;
+/* Form Controls Focus State */
+.form-control:focus,
+.form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
 }
 
-.vendor-error {
-  color: #e74c3c;
-  margin-bottom: 15px;
-  text-align: center;
+/* Input Group Text Background */
+.input-group-text {
+  background-color: #f8f9fa;
 }
 
-.vendor-switch-link {
-  margin-top: 15px;
-  text-align: center;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.vendor-switch-link a {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.vendor-switch-link a:hover {
-  text-decoration: underline;
+.vendor-login-card {
+  animation: fadeIn 0.6s ease-out;
 }
