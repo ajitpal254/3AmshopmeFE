@@ -1,6 +1,32 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+// Environment-based BASE_URL configuration
+const getBaseUrl = () => {
+    const nodeEnv = process.env.NODE_ENV;
+    const customEnv = process.env.REACT_APP_ENV;
+
+    let baseUrl;
+
+    // Use production URL if NODE_ENV is production OR if explicitly set
+    if (nodeEnv === 'production' || customEnv === 'production') {
+        baseUrl = process.env.REACT_APP_API_URL_PROD || 'https://threeamshoppeebe.onrender.com/';
+    } else {
+        // Use development URL for all other cases
+        baseUrl = process.env.REACT_APP_API_URL || 'http://192.168.2.33:8080';
+    }
+
+    // Log the configuration in development
+    if (nodeEnv === 'development') {
+        console.log('%c API Configuration ', 'background: #0066cc; color: white; font-weight: bold; padding: 4px;');
+        console.log('BASE_URL:', baseUrl);
+        console.log('NODE_ENV:', nodeEnv);
+        console.log('REACT_APP_ENV:', customEnv);
+    }
+
+    return baseUrl;
+};
+
+const BASE_URL = getBaseUrl();
 
 const api = axios.create({
     baseURL: BASE_URL,
