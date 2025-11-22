@@ -35,7 +35,7 @@ const Header = ({ history }) => {
 
   return (
     <header>
-      <Navbar expand="lg" className="custom-navbar" fixed="top">
+      <Navbar expand="lg" className="custom-navbar" sticky="top">
         <Container>
           <LinkContainer to="/">
             <Navbar.Brand className="brand-text">

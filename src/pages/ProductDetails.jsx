@@ -64,7 +64,7 @@ const ProductDetails = () => {
     : product.price;
 
   return (
-    <div className="container mt-3">
+    <div className="container">
       <Link className="btn btn-light my-3" to="/">
         <i className="fas fa-arrow-left"></i> Go Back
       </Link>

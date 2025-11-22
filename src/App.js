@@ -51,7 +51,7 @@ function App() {
       <CartProvider>
         <Router>
           <Header />
-          <main className="py-3">
+          <main>
             <Container>
               <Switch>
                 <Route path="/" component={HomeScreen} exact />

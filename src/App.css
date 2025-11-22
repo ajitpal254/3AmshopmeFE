@@ -7,9 +7,9 @@
   --text-color: #374151;
   --card-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(255, 255, 255, 0.3);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
 }
 
 body {
@@ -17,6 +17,23 @@ body {
   background-color: #f9fafb;
   color: var(--text-color);
   line-height: 1.6;
+}
+
+/* Header is now sticky, so we don't need massive top padding */
+main {
+  padding-bottom: 2rem !important;
+  min-height: 80vh;
+}
+
+/* Remove ALL top margins/padding from ANY container inside main to prevent spacing issues */
+main .container,
+main>.container,
+main .container.mt-3,
+main .container.mt-4,
+main .container.mt-5 {
+  margin-top: 2rem !important;
+  /* Add a little breathing room since header is sticky */
+  padding-top: 0 !important;
 }
 
 .product-card {
