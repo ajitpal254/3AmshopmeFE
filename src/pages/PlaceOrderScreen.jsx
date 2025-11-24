@@ -16,11 +16,8 @@ const PlaceOrderScreen = () => {
     const [error, setError] = useState('');
     const [orderPlaced, setOrderPlaced] = useState(false);
 
-    // Dummy Payment State
-    const [cardNumber, setCardNumber] = useState('');
-    const [expiry, setExpiry] = useState('');
-    const [cvv, setCvv] = useState('');
-    const [paymentError, setPaymentError] = useState('');
+    // Payment State
+    const [paymentMethod, setPaymentMethod] = useState('Stripe');
 
     useEffect(() => {
         if (!shippingAddress.address && !orderPlaced) {
@@ -46,12 +43,6 @@ const PlaceOrderScreen = () => {
     const totalPrice = Number((itemsPrice - couponDiscount + shippingPrice + taxPrice).toFixed(2));
 
     const placeOrderHandler = async () => {
-        setPaymentError('');
-        if (!cardNumber || !expiry || !cvv) {
-            notificationService.error('Please fill in all payment details (Dummy Checkout)');
-            return;
-        }
-
         setLoading(true);
         setError('');
 
@@ -65,7 +56,7 @@ const PlaceOrderScreen = () => {
                     Product: item.product
                 })),
                 shippingAddress: shippingAddress,
-                paymentMethod: 'Credit Card (Dummy)',
+                paymentMethod: 'Stripe',
                 itemsPrice: itemsPrice,
                 shippingPrice: shippingPrice,
                 taxPrice: taxPrice,
@@ -84,8 +75,8 @@ const PlaceOrderScreen = () => {
 
             notificationService.success("Order placed successfully!");
 
-            // Redirect to orders list
-            history.push(`/orders`);
+            // Redirect to order details
+            history.push(`/orders/${data._id}`);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to place order');
             notificationService.error(err.response?.data?.message || 'Failed to place order');
@@ -114,44 +105,21 @@ const PlaceOrderScreen = () => {
                                 <h5 className="mb-3 text-muted">Payment Method</h5>
                                 <div className="p-3 bg-light rounded">
                                     <div className="form-check mb-3">
-                                        <input className="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked readOnly />
-                                        <label className="form-check-label fw-bold" htmlFor="creditCard">
-                                            Credit / Debit Card
+                                        <input
+                                            className="form-check-input"
+                                            type="radio"
+                                            name="paymentMethod"
+                                            id="stripe"
+                                            value="Stripe"
+                                            checked={true}
+                                            readOnly
+                                        />
+                                        <label className="form-check-label fw-bold" htmlFor="stripe">
+                                            Credit / Debit Card (Stripe)
                                         </label>
                                     </div>
-
-                                    <Row className="g-3">
-                                        <Col md={12}>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="Card Number (0000 0000 0000 0000)"
-                                                value={cardNumber}
-                                                onChange={(e) => setCardNumber(e.target.value)}
-                                            />
-                                        </Col>
-                                        <Col md={6}>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="MM/YY"
-                                                value={expiry}
-                                                onChange={(e) => setExpiry(e.target.value)}
-                                            />
-                                        </Col>
-                                        <Col md={6}>
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                placeholder="CVV"
-                                                value={cvv}
-                                                onChange={(e) => setCvv(e.target.value)}
-                                            />
-                                        </Col>
-                                    </Row>
-                                    {paymentError && <div className="text-danger mt-2 small">{paymentError}</div>}
                                     <div className="mt-2 text-muted small">
-                                        <i className="fas fa-lock me-1"></i> This is a secure 128-bit SSL encrypted payment (Dummy).
+                                        <i className="fas fa-lock me-1"></i> Secure payment processing by Stripe.
                                     </div>
                                 </div>
                             </ListGroup.Item>

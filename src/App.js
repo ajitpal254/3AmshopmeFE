@@ -20,6 +20,8 @@ import AdminDeleteConfirm from "./pages/AdminDeleteConfirm";
 import DeleteConfirm from "./pages/DeleteConfirm";
 import SearchResultScreen from "./pages/SearchResultScreen";
 import EmailVerification from "./pages/EmailVerification";
+import OrderScreen from "./pages/OrderScreen";
+
 import OrdersScreen from "./pages/OrdersScreen";
 import ProductListScreen from "./pages/ProductListScreen";
 import OrderListScreen from "./pages/OrderListScreen";
@@ -96,6 +98,7 @@ function App() {
                   <Route path="/search" component={SearchResultScreen} />
                   <Route path="/profile" component={UserProfile} />
                   <Route path="/my-reviews" component={MyReviewsPage} />
+                  <Route path="/orders/:id" component={OrderScreen} />
                   <Route path="/orders" component={OrdersScreen} />
                   <Route path="/wishlist" component={WishlistScreen} />
                   <Route path="/admin/productlist" component={ProductListScreen} />

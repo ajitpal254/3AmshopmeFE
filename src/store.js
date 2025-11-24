@@ -2,9 +2,11 @@ import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import { cartReducer } from './reducers/cartReducers'
+import { currencyReducer } from './reducers/currencyReducers'
 
 const reducer = combineReducers({
     cart: cartReducer,
+    currencyState: currencyReducer,
 })
 
 const cartItemsFromStorage = localStorage.getItem('cartItems')
@@ -19,12 +21,19 @@ const couponFromStorage = localStorage.getItem('coupon')
     ? JSON.parse(localStorage.getItem('coupon'))
     : null
 
+const currencyFromStorage = localStorage.getItem('currency')
+    ? localStorage.getItem('currency')
+    : 'USD'
+
 const initialState = {
     cart: {
         cartItems: cartItemsFromStorage,
         shippingAddress: shippingAddressFromStorage,
         coupon: couponFromStorage,
     },
+    currencyState: {
+        currency: currencyFromStorage,
+    }
 }
 
 const middleware = [thunk]
@@ -38,7 +47,7 @@ const store = createStore(
 // Automatically save cart to localStorage whenever state changes
 store.subscribe(() => {
     const state = store.getState()
-    console.log('STORE SUBSCRIBE: Saving to localStorage', state.cart.cartItems.length, 'items');
+    // console.log('STORE SUBSCRIBE: Saving to localStorage', state.cart.cartItems.length, 'items');
     localStorage.setItem('cartItems', JSON.stringify(state.cart.cartItems))
     localStorage.setItem('shippingAddress', JSON.stringify(state.cart.shippingAddress))
     if (state.cart.coupon) {

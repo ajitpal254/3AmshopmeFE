@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Button, Card, Badge } from "react-bootstrap";
 import Rating from './Rating'
 import { Link, useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../actions/cartActions";
 import api from '../utils/api';
 import notificationService from '../utils/notificationService';
 import { useAuth } from '../context/AuthContext';
 import QuickViewModal from './QuickViewModal';
+import { formatPrice, getCurrencySymbol } from '../utils/currencyUtils';
 import './ProductScreen.css';
 
 export const ProductScreen = ({ product }) => {
@@ -16,6 +17,10 @@ export const ProductScreen = ({ product }) => {
     const { user } = useAuth();
     const [isHovered, setIsHovered] = useState(false);
     const [showQuickView, setShowQuickView] = useState(false);
+
+    const currencyState = useSelector((state) => state.currencyState);
+    const { currency } = currencyState;
+    const currencySymbol = getCurrencySymbol(currency);
 
     const handleAddToCart = (e) => {
         e.preventDefault();
@@ -48,10 +53,12 @@ export const ProductScreen = ({ product }) => {
 
     // Calculate actual price and original price based on discount
     const hasDiscount = product.isOnDiscount && product.discountPercentage > 0;
-    const displayPrice = hasDiscount
-        ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
+    const rawDisplayPrice = hasDiscount
+        ? (product.price * (1 - product.discountPercentage / 100))
         : product.price;
-    const originalPrice = hasDiscount ? product.price : (product.originalPrice || null);
+
+    const displayPrice = formatPrice(rawDisplayPrice || 0, currency);
+    const originalPrice = formatPrice(product.price || 0, currency);
 
     return (
         <>
@@ -96,9 +103,9 @@ export const ProductScreen = ({ product }) => {
                     </Card.Text>
 
                     <div className="price-container mb-3">
-                        <span className="current-price">${displayPrice}</span>
-                        {originalPrice && (
-                            <span className="original-price">${originalPrice}</span>
+                        <span className="current-price">{currencySymbol}{displayPrice}</span>
+                        {hasDiscount && (
+                            <span className="original-price">{currencySymbol}{originalPrice}</span>
                         )}
                     </div>
 

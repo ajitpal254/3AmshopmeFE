@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
 import { Row, Col, Image, ListGroup, Card, Button, Form, Badge, Container, Alert } from "react-bootstrap";
+import { useSelector } from "react-redux";
 import Rating from "../components/Rating";
 import api from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import notificationService from "../utils/notificationService";
+import { formatPrice, getCurrencySymbol } from "../utils/currencyUtils";
 
 // Hook must be declared outside the component
 function useRelatedItems(currentProduct) {
@@ -41,6 +43,9 @@ const ProductDetails = () => {
   const { id } = useParams();
   const history = useHistory();
   const { user } = useAuth();
+
+  const currencyState = useSelector((state) => state.currencyState);
+  const { currency } = currencyState;
 
   const [product, setProduct] = useState({});
   const [qty, setQty] = useState(1);
@@ -112,9 +117,13 @@ const ProductDetails = () => {
 
   // Calculate discount pricing
   const hasDiscount = product.isOnDiscount && product.discountPercentage > 0;
-  const displayPrice = hasDiscount
-    ? (product.price * (1 - product.discountPercentage / 100)).toFixed(2)
+  const rawDisplayPrice = hasDiscount
+    ? (product.price * (1 - product.discountPercentage / 100))
     : product.price;
+
+  const displayPrice = formatPrice(rawDisplayPrice || 0, currency);
+  const originalPrice = formatPrice(product.price || 0, currency);
+  const currencySymbol = getCurrencySymbol(currency);
 
   return (
     <Container className="py-5">
@@ -142,12 +151,12 @@ const ProductDetails = () => {
             <div className="mb-4">
               {hasDiscount ? (
                 <div className="d-flex align-items-center">
-                  <h2 className="text-success fw-bold me-3 mb-0">${displayPrice}</h2>
-                  <span className="text-decoration-line-through text-muted fs-5 me-2">${product.price}</span>
+                  <h2 className="text-success fw-bold me-3 mb-0">{currencySymbol}{displayPrice}</h2>
+                  <span className="text-decoration-line-through text-muted fs-5 me-2">{currencySymbol}{originalPrice}</span>
                   <Badge bg="danger" className="fs-6">{product.discountPercentage}% OFF</Badge>
                 </div>
               ) : (
-                <h2 className="fw-bold">${product.price}</h2>
+                <h2 className="fw-bold">{currencySymbol}{displayPrice}</h2>
               )}
             </div>
 
@@ -159,9 +168,9 @@ const ProductDetails = () => {
                   <Col xs={6}><strong>Price:</strong></Col>
                   <Col xs={6}>
                     {hasDiscount ? (
-                      <span className="text-success fw-bold">${displayPrice}</span>
+                      <span className="text-success fw-bold">{currencySymbol}{displayPrice}</span>
                     ) : (
-                      <span className="fw-bold">${product.price}</span>
+                      <span className="fw-bold">{currencySymbol}{displayPrice}</span>
                     )}
                   </Col>
                 </Row>
@@ -309,7 +318,7 @@ const ProductDetails = () => {
                   ></Form.Control>
                 </Form.Group>
                 <Button
-                  disabled={loadingProductReview}
+                  disabled={loadingProductReview || rating === 0 || comment === ""}
                   type="submit"
                   variant="primary"
                 >
@@ -332,6 +341,10 @@ const ProductDetails = () => {
 
 // Related items section
 export const RelatedItemsList = ({ relatedItems }) => {
+  const currencyState = useSelector((state) => state.currencyState);
+  const { currency } = currencyState;
+  const currencySymbol = getCurrencySymbol(currency);
+
   if (!relatedItems || relatedItems.length === 0) return null;
 
   return (
@@ -340,9 +353,12 @@ export const RelatedItemsList = ({ relatedItems }) => {
       <div className="d-flex flex-wrap gap-4">
         {relatedItems.map((item) => {
           const hasDiscount = item.isOnDiscount && item.discountPercentage > 0;
-          const displayPrice = hasDiscount
-            ? (item.price * (1 - item.discountPercentage / 100)).toFixed(2)
+          const rawDisplayPrice = hasDiscount
+            ? (item.price * (1 - item.discountPercentage / 100))
             : item.price;
+
+          const displayPrice = formatPrice(rawDisplayPrice || 0, currency);
+          const originalPrice = formatPrice(item.price || 0, currency);
 
           return (
             <Link
@@ -372,15 +388,15 @@ export const RelatedItemsList = ({ relatedItems }) => {
                     {hasDiscount ? (
                       <div className="d-flex align-items-center gap-2">
                         <span className="text-decoration-line-through text-muted small">
-                          ${item.price}
+                          {currencySymbol}{originalPrice}
                         </span>
                         <span className="text-success fw-bold">
-                          ${displayPrice}
+                          {currencySymbol}{displayPrice}
                         </span>
                       </div>
                     ) : (
                       <div className="fw-bold">
-                        ${item.price}
+                        {currencySymbol}{displayPrice}
                       </div>
                     )}
                   </div>

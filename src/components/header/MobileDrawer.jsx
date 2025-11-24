@@ -37,19 +37,7 @@ const MobileDrawer = ({
                 </div>
 
                 <div className="drawer-nav">
-                    <LinkContainer to="/cart" onClick={onClose}>
-                        <div className="drawer-nav-item">
-                            <div className="drawer-nav-icon">
-                                <i className="fas fa-shopping-cart"></i>
-                            </div>
-                            <span>Cart</span>
-                            {cartItems.length > 0 && (
-                                <span className="ms-auto badge bg-danger rounded-pill">
-                                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                                </span>
-                            )}
-                        </div>
-                    </LinkContainer>
+
 
                     {user && (
                         <LinkContainer to="/orders" onClick={onClose}>

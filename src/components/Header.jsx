@@ -10,6 +10,7 @@ import MobileDrawer from "./header/MobileDrawer";
 import UserMenu from "./header/UserMenu";
 import VendorMenu from "./header/VendorMenu";
 import AuthButtons from "./header/AuthButtons";
+import CurrencySwitcher from "./CurrencySwitcher";
 import "./Header.css";
 
 const Header = ({ history }) => {
@@ -32,7 +33,7 @@ const Header = ({ history }) => {
   return (
     <header>
       <Navbar expand="lg" className="custom-navbar" sticky="top">
-        <Container fluid className="px-4">
+        <Container fluid className="px-4 d-flex align-items-center">
           {/* Brand - Far Left */}
           <LinkContainer to="/">
             <Navbar.Brand className="brand-text me-0">
@@ -69,7 +70,7 @@ const Header = ({ history }) => {
 
           {/* Desktop Navigation - Far Right */}
           <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-0">
-            <Nav className="d-flex align-items-center gap-2">
+            <Nav className="d-flex align-items-center gap-3">
               {/* Cart Link */}
               <LinkContainer to="/cart">
                 <Nav.Link className="nav-link-modern position-relative">
@@ -92,6 +93,9 @@ const Header = ({ history }) => {
               >
                 <i className={`fas fa-${theme === "light" ? "moon" : "sun"}`}></i>
               </button>
+
+              {/* Currency Switcher */}
+              <CurrencySwitcher />
 
               {/* User/Vendor Menu or Auth Buttons */}
               {user ? (
