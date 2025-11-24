@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col, ListGroup, Image, Form, Button, Card, Alert, InputGroup } from 'react-bootstrap'
 import { addToCart, removeFromCart, applyCoupon, removeCoupon, clearCart } from '../actions/cartActions'
+import notificationService from "../utils/notificationService";
 
 const CartScreen = ({ match, location, history }) => {
     const productId = match.params.id
@@ -25,11 +26,13 @@ const CartScreen = ({ match, location, history }) => {
 
     const removeFromCartHandler = (id) => {
         dispatch(removeFromCart(id))
+        notificationService.info("Item removed from cart");
     }
 
     const clearCartHandler = () => {
         if (window.confirm('Are you sure you want to clear your cart?')) {
             dispatch(clearCart())
+            notificationService.info("Cart cleared");
         }
     }
 
@@ -42,22 +45,23 @@ const CartScreen = ({ match, location, history }) => {
         setCouponSuccess('')
 
         if (!couponCode.trim()) {
-            setCouponError('Please enter a coupon code')
+            notificationService.error('Please enter a coupon code')
             return
         }
 
         const result = await dispatch(applyCoupon(couponCode))
 
         if (result.success) {
-            setCouponSuccess('Coupon applied successfully!')
+            notificationService.success('Coupon applied successfully!')
             setCouponCode('')
         } else {
-            setCouponError(result.message)
+            notificationService.error(result.message)
         }
     }
 
     const handleRemoveCoupon = () => {
         dispatch(removeCoupon())
+        notificationService.info("Coupon removed");
         setCouponSuccess('')
         setCouponError('')
     }
@@ -83,148 +87,155 @@ const CartScreen = ({ match, location, history }) => {
     // Calculate final total
     const total = Math.max(0, subtotal - discount)
 
-    // Debug logging
-    console.log('CartScreen Render. Items:', cartItems.length);
-
     return (
-        <Row>
-            <Col md={8}>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h1>Shopping Cart</h1>
-                    {cartItems.length > 0 && (
-                        <Button variant="danger" size="sm" onClick={clearCartHandler}>
-                            <i className="fas fa-trash me-2"></i> Clear Cart
-                        </Button>
-                    )}
-                </div>
-                {cartItems.length === 0 ? (
-                    <Alert variant='info'>
-                        Your cart is empty <Link to='/'>Go Back</Link>
-                    </Alert>
-                ) : (
-                    <ListGroup variant='flush'>
-                        {cartItems.filter(item => item && item.product).map((item, index) => (
-                            <ListGroup.Item key={item.product || index}>
-                                <Row>
-                                    <Col md={2}>
-                                        <Image src={item.image} alt={item.name} fluid rounded />
-                                    </Col>
-                                    <Col md={3}>
-                                        <Link to={`/products/${item.product}`}>{item.name}</Link>
-                                    </Col>
-                                    <Col md={2}>${item.price}</Col>
-                                    <Col md={2}>
-                                        <Form.Control
-                                            as='select'
-                                            value={item.qty}
-                                            onChange={(e) =>
-                                                dispatch(
-                                                    addToCart(item.product, Number(e.target.value))
-                                                )
-                                            }
-                                        >
-                                            {[...Array(item.countInStock).keys()].map((x) => (
-                                                <option key={x + 1} value={x + 1}>
-                                                    {x + 1}
-                                                </option>
-                                            ))}
-                                        </Form.Control>
-                                    </Col>
-                                    <Col md={2}>
-                                        <Button
-                                            type='button'
-                                            variant='light'
-                                            onClick={() => removeFromCartHandler(item.product)}
-                                        >
-                                            <i className='fas fa-trash'></i>
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
-                )}
-            </Col>
-            <Col md={4}>
-                <Card>
-                    <ListGroup variant='flush'>
-                        <ListGroup.Item>
-                            <h2>
-                                Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
-                                items
-                            </h2>
-                            ${subtotal.toFixed(2)}
-                        </ListGroup.Item>
-
-                        {/* Coupon Code Section */}
-                        <ListGroup.Item>
-                            <h5>Have a Coupon?</h5>
-                            {!coupon ? (
-                                <>
-                                    <InputGroup className='mb-2'>
-                                        <Form.Control
-                                            type='text'
-                                            placeholder='Enter coupon code'
-                                            value={couponCode}
-                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                        />
-                                        <Button variant='primary' onClick={handleApplyCoupon}>
-                                            Apply
-                                        </Button>
-                                    </InputGroup>
-                                    {couponError && <Alert variant='danger' className='mt-2'>{couponError}</Alert>}
-                                    {couponSuccess && <Alert variant='success' className='mt-2'>{couponSuccess}</Alert>}
-                                </>
-                            ) : (
-                                <div>
-                                    <Alert variant='success' className='d-flex justify-content-between align-items-center'>
-                                        <span>
-                                            <strong>{coupon.code}</strong> - {coupon.discountType === 'percentage'
-                                                ? `${coupon.discountValue}% off`
-                                                : `$${coupon.discountValue} off`}
-                                        </span>
-                                        <Button variant='link' size='sm' onClick={handleRemoveCoupon} className='text-danger'>
-                                            Remove
-                                        </Button>
-                                    </Alert>
-                                </div>
-                            )}
-                        </ListGroup.Item>
-
-                        {/* Show discount if applied */}
-                        {coupon && (
-                            <ListGroup.Item>
-                                <Row>
-                                    <Col>Discount:</Col>
-                                    <Col className='text-success'>-${discount.toFixed(2)}</Col>
-                                </Row>
-                            </ListGroup.Item>
-                        )}
-
-                        {/* Total */}
-                        <ListGroup.Item>
-                            <Row>
-                                <Col><strong>Total:</strong></Col>
-                                <Col><strong>${total.toFixed(2)}</strong></Col>
-                            </Row>
-                        </ListGroup.Item>
-
-                        <ListGroup.Item>
-                            <Button
-                                type='button'
-                                className='btn-block'
-                                disabled={cartItems.length === 0}
-                                onClick={checkoutHandler}
-                            >
-                                Proceed To Checkout
+        <div className="container py-5">
+            <Row>
+                <Col md={8}>
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h1 className="fw-bold">Shopping Cart</h1>
+                        {cartItems.length > 0 && (
+                            <Button variant="outline-danger" size="sm" onClick={clearCartHandler}>
+                                <i className="fas fa-trash me-2"></i> Clear Cart
                             </Button>
-                        </ListGroup.Item>
-                    </ListGroup>
-                </Card>
-            </Col>
-        </Row>
+                        )}
+                    </div>
+                    {cartItems.length === 0 ? (
+                        <Alert variant='info' className="p-4 text-center">
+                            <h4>Your cart is empty</h4>
+                            <p className="mb-0">Looks like you haven't added anything to your cart yet.</p>
+                            <Link to='/' className="btn btn-primary mt-3">Start Shopping</Link>
+                        </Alert>
+                    ) : (
+                        <div className="d-flex flex-column gap-3">
+                            {cartItems.filter(item => item && item.product).map((item, index) => (
+                                <Card key={item.product || index} className="border-0 shadow-sm">
+                                    <Card.Body>
+                                        <Row className="align-items-center">
+                                            <Col md={2}>
+                                                <Image src={item.image} alt={item.name} fluid rounded />
+                                            </Col>
+                                            <Col md={4}>
+                                                <Link to={`/products/${item.product}`} className="text-decoration-none text-dark fw-bold">
+                                                    {item.name}
+                                                </Link>
+                                            </Col>
+                                            <Col md={2} className="fw-bold text-muted">
+                                                ${item.price}
+                                            </Col>
+                                            <Col md={2}>
+                                                <Form.Control
+                                                    as='select'
+                                                    value={item.qty}
+                                                    onChange={(e) =>
+                                                        dispatch(
+                                                            addToCart(item.product, Number(e.target.value))
+                                                        )
+                                                    }
+                                                    className="form-select-sm"
+                                                >
+                                                    {[...Array(item.countInStock).keys()].map((x) => (
+                                                        <option key={x + 1} value={x + 1}>
+                                                            {x + 1}
+                                                        </option>
+                                                    ))}
+                                                </Form.Control>
+                                            </Col>
+                                            <Col md={2} className="text-end">
+                                                <Button
+                                                    type='button'
+                                                    variant='light'
+                                                    className="text-danger"
+                                                    onClick={() => removeFromCartHandler(item.product)}
+                                                >
+                                                    <i className='fas fa-trash'></i>
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                    </Card.Body>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+                </Col>
+                <Col md={4}>
+                    <Card className="border-0 shadow-sm">
+                        <Card.Body>
+                            <h4 className="mb-3">Order Summary</h4>
+                            <ListGroup variant='flush'>
+                                <ListGroup.Item className="px-0">
+                                    <div className="d-flex justify-content-between">
+                                        <span>Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)} items)</span>
+                                        <span className="fw-bold">${subtotal.toFixed(2)}</span>
+                                    </div>
+                                </ListGroup.Item>
+
+                                {/* Coupon Code Section */}
+                                <ListGroup.Item className="px-0">
+                                    <h6 className="mb-2">Have a Coupon?</h6>
+                                    {!coupon ? (
+                                        <>
+                                            <InputGroup className='mb-2'>
+                                                <Form.Control
+                                                    type='text'
+                                                    placeholder='Enter code'
+                                                    value={couponCode}
+                                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                                />
+                                                <Button variant='outline-primary' onClick={handleApplyCoupon}>
+                                                    Apply
+                                                </Button>
+                                            </InputGroup>
+                                            {couponError && <small className='text-danger'>{couponError}</small>}
+                                            {couponSuccess && <small className='text-success'>{couponSuccess}</small>}
+                                        </>
+                                    ) : (
+                                        <Alert variant='success' className='d-flex justify-content-between align-items-center py-2 px-3 mb-0'>
+                                            <small>
+                                                <strong>{coupon.code}</strong> applied
+                                            </small>
+                                            <Button variant='link' size='sm' onClick={handleRemoveCoupon} className='text-danger p-0 text-decoration-none'>
+                                                <i className="fas fa-times"></i>
+                                            </Button>
+                                        </Alert>
+                                    )}
+                                </ListGroup.Item>
+
+                                {/* Show discount if applied */}
+                                {coupon && (
+                                    <ListGroup.Item className="px-0">
+                                        <div className="d-flex justify-content-between text-success">
+                                            <span>Discount</span>
+                                            <span>-${discount.toFixed(2)}</span>
+                                        </div>
+                                    </ListGroup.Item>
+                                )}
+
+                                {/* Total */}
+                                <ListGroup.Item className="px-0">
+                                    <div className="d-flex justify-content-between fs-5 fw-bold">
+                                        <span>Total</span>
+                                        <span>${total.toFixed(2)}</span>
+                                    </div>
+                                </ListGroup.Item>
+
+                                <ListGroup.Item className="px-0 pt-3">
+                                    <Button
+                                        type='button'
+                                        className='w-100 py-2 fw-bold'
+                                        disabled={cartItems.length === 0}
+                                        onClick={checkoutHandler}
+                                        style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                                    >
+                                        Proceed To Checkout
+                                    </Button>
+                                </ListGroup.Item>
+                            </ListGroup>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
+        </div>
     )
 }
 
 export default CartScreen
-

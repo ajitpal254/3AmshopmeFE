@@ -11,22 +11,47 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check for stored tokens on mount
-        const userToken = localStorage.getItem('token');
-        const userInfo = localStorage.getItem('userInfo');
+        const initAuth = async () => {
+            // Check for stored tokens on mount
+            const userToken = localStorage.getItem('token');
+            const userInfo = localStorage.getItem('userInfo');
 
-        const vendorToken = localStorage.getItem('vendorToken');
-        const vendorInfo = localStorage.getItem('vendorInfo');
+            const vendorToken = localStorage.getItem('vendorToken');
+            const vendorInfo = localStorage.getItem('vendorInfo');
 
-        if (userToken && userInfo) {
-            setUser(JSON.parse(userInfo));
-        }
+            if (userToken && userInfo) {
+                setUser(JSON.parse(userInfo));
 
-        if (vendorToken && vendorInfo) {
-            setVendor(JSON.parse(vendorInfo));
-        }
+                // Fetch fresh user data from backend to get latest profile picture
+                try {
+                    const { data } = await api.get('/api/profile', {
+                        headers: { Authorization: `Bearer ${userToken}` }
+                    });
 
-        setLoading(false);
+                    const freshUser = {
+                        _id: data._id,
+                        name: data.name,
+                        email: data.email,
+                        isAdmin: data.isAdmin,
+                        profilePicture: data.profilePicture,
+                        phone: data.phone
+                    };
+
+                    setUser(freshUser);
+                    localStorage.setItem('userInfo', JSON.stringify(freshUser));
+                } catch (error) {
+                    console.error('Failed to fetch user profile:', error);
+                }
+            }
+
+            if (vendorToken && vendorInfo) {
+                setVendor(JSON.parse(vendorInfo));
+            }
+
+            setLoading(false);
+        };
+
+        initAuth();
     }, []);
 
     // User Actions
@@ -79,6 +104,32 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('userInfo', JSON.stringify(updatedUser));
     };
 
+    const refreshUser = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            const { data } = await api.get('/api/profile', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Update user with fresh data from backend
+            const refreshedUser = {
+                _id: data._id,
+                name: data.name,
+                email: data.email,
+                isAdmin: data.isAdmin,
+                profilePicture: data.profilePicture,
+                phone: data.phone
+            };
+
+            setUser(refreshedUser);
+            localStorage.setItem('userInfo', JSON.stringify(refreshedUser));
+        } catch (error) {
+            console.error('Failed to refresh user data:', error);
+        }
+    };
+
     // Vendor Actions
     const loginVendor = async (email, password) => {
         try {
@@ -115,6 +166,7 @@ export const AuthProvider = ({ children }) => {
         signupUser,
         logoutUser,
         updateUser,
+        refreshUser,
         loginVendor,
         signupVendor,
         logoutVendor

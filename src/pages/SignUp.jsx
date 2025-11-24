@@ -7,6 +7,8 @@ import api from "../utils/api";
 import { Container, Row, Col, Form, Button, Card, InputGroup } from "react-bootstrap";
 import "../components/css/CustomerAuth.css";
 
+import notificationService from "../utils/notificationService";
+
 const SignUp = () => {
     const [user, setUser] = useState({
         name: "",
@@ -49,10 +51,13 @@ const SignUp = () => {
                 password
             });
             setLoading(false);
+            notificationService.success("Account created successfully!");
             history.push('/');
         } catch (err) {
             setLoading(false);
-            setError(err.toString());
+            const errorMessage = err.toString();
+            setError(errorMessage);
+            notificationService.error(errorMessage);
         }
     };
 
@@ -72,11 +77,14 @@ const SignUp = () => {
 
             localStorage.setItem("token", responseData.token);
             localStorage.setItem("userInfo", JSON.stringify(responseData.user));
+            notificationService.success("Google Sign-Up successful!");
             window.location.href = '/';
 
         } catch (error) {
             console.error("Google Sign Up Error:", error);
-            setError(error.response?.data?.message || "Google Sign-Up failed.");
+            const msg = error.response?.data?.message || "Google Sign-Up failed.";
+            setError(msg);
+            notificationService.error(msg);
         }
     };
 

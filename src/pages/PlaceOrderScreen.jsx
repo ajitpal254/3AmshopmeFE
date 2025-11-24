@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { clearCart } from '../actions/cartActions';
 import api from '../utils/api';
+import notificationService from "../utils/notificationService";
 
 const PlaceOrderScreen = () => {
     const history = useHistory();
@@ -14,6 +15,12 @@ const PlaceOrderScreen = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [orderPlaced, setOrderPlaced] = useState(false);
+
+    // Dummy Payment State
+    const [cardNumber, setCardNumber] = useState('');
+    const [expiry, setExpiry] = useState('');
+    const [cvv, setCvv] = useState('');
+    const [paymentError, setPaymentError] = useState('');
 
     useEffect(() => {
         if (!shippingAddress.address && !orderPlaced) {
@@ -39,6 +46,12 @@ const PlaceOrderScreen = () => {
     const totalPrice = Number((itemsPrice - couponDiscount + shippingPrice + taxPrice).toFixed(2));
 
     const placeOrderHandler = async () => {
+        setPaymentError('');
+        if (!cardNumber || !expiry || !cvv) {
+            notificationService.error('Please fill in all payment details (Dummy Checkout)');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -52,7 +65,7 @@ const PlaceOrderScreen = () => {
                     Product: item.product
                 })),
                 shippingAddress: shippingAddress,
-                paymentMethod: 'PayPal', // Default payment method
+                paymentMethod: 'Credit Card (Dummy)',
                 itemsPrice: itemsPrice,
                 shippingPrice: shippingPrice,
                 taxPrice: taxPrice,
@@ -69,123 +82,172 @@ const PlaceOrderScreen = () => {
             // Clear cart using Redux action (clears both state and localStorage)
             dispatch(clearCart());
 
+            notificationService.success("Order placed successfully!");
+
             // Redirect to orders list
             history.push(`/orders`);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to place order');
+            notificationService.error(err.response?.data?.message || 'Failed to place order');
             setLoading(false);
         }
     };
 
     return (
-        <div className="container mt-4">
+        <div className="container mt-5">
             <Row>
                 <Col md={8}>
-                    <ListGroup variant="flush">
-                        <ListGroup.Item>
-                            <h2>Shipping</h2>
-                            <p>
-                                <strong>Address: </strong>
-                                {shippingAddress.address}, {shippingAddress.city}{' '}
-                                {shippingAddress.postalCode}, {shippingAddress.country}
-                            </p>
-                        </ListGroup.Item>
+                    <Card className="mb-4 border-0 shadow-sm">
+                        <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
+                            <h4 className="mb-0">Shipping & Payment</h4>
+                        </Card.Header>
+                        <ListGroup variant="flush">
+                            <ListGroup.Item className="px-4 py-3">
+                                <h5 className="mb-2 text-muted">Shipping Address</h5>
+                                <p className="mb-0">
+                                    {shippingAddress.address}, {shippingAddress.city}{' '}
+                                    {shippingAddress.postalCode}, {shippingAddress.country}
+                                </p>
+                            </ListGroup.Item>
 
-                        <ListGroup.Item>
-                            <h2>Payment Method</h2>
-                            <strong>Method: </strong>
-                            PayPal or Credit Card
-                        </ListGroup.Item>
+                            <ListGroup.Item className="px-4 py-3">
+                                <h5 className="mb-3 text-muted">Payment Method</h5>
+                                <div className="p-3 bg-light rounded">
+                                    <div className="form-check mb-3">
+                                        <input className="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked readOnly />
+                                        <label className="form-check-label fw-bold" htmlFor="creditCard">
+                                            Credit / Debit Card
+                                        </label>
+                                    </div>
 
-                        <ListGroup.Item>
-                            <h2>Order Items</h2>
-                            {cartItems.length === 0 ? (
-                                <div>Your cart is empty</div>
-                            ) : (
-                                <ListGroup variant="flush">
-                                    {cartItems.map((item, index) => (
-                                        <ListGroup.Item key={index}>
-                                            <Row>
-                                                <Col md={1}>
-                                                    <Image src={item.image} alt={item.name} fluid rounded />
-                                                </Col>
-                                                <Col>
-                                                    <Link to={`/products/${item.product}`}>{item.name}</Link>
-                                                </Col>
-                                                <Col md={4}>
-                                                    {item.qty} x ${item.price} = ${(item.qty * item.price).toFixed(2)}
-                                                </Col>
-                                            </Row>
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
-                            )}
-                        </ListGroup.Item>
-                    </ListGroup>
+                                    <Row className="g-3">
+                                        <Col md={12}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="Card Number (0000 0000 0000 0000)"
+                                                value={cardNumber}
+                                                onChange={(e) => setCardNumber(e.target.value)}
+                                            />
+                                        </Col>
+                                        <Col md={6}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="MM/YY"
+                                                value={expiry}
+                                                onChange={(e) => setExpiry(e.target.value)}
+                                            />
+                                        </Col>
+                                        <Col md={6}>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder="CVV"
+                                                value={cvv}
+                                                onChange={(e) => setCvv(e.target.value)}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    {paymentError && <div className="text-danger mt-2 small">{paymentError}</div>}
+                                    <div className="mt-2 text-muted small">
+                                        <i className="fas fa-lock me-1"></i> This is a secure 128-bit SSL encrypted payment (Dummy).
+                                    </div>
+                                </div>
+                            </ListGroup.Item>
+
+                            <ListGroup.Item className="px-4 py-3">
+                                <h5 className="mb-3 text-muted">Order Items</h5>
+                                {cartItems.length === 0 ? (
+                                    <div className="alert alert-info">Your cart is empty</div>
+                                ) : (
+                                    <ListGroup variant="flush">
+                                        {cartItems.map((item, index) => (
+                                            <ListGroup.Item key={index} className="border-0 px-0 py-2">
+                                                <Row className="align-items-center">
+                                                    <Col md={2}>
+                                                        <Image src={item.image} alt={item.name} fluid rounded />
+                                                    </Col>
+                                                    <Col>
+                                                        <Link to={`/products/${item.product}`} className="text-decoration-none text-dark fw-bold">
+                                                            {item.name}
+                                                        </Link>
+                                                    </Col>
+                                                    <Col md={4} className="text-end">
+                                                        {item.qty} x ${item.price} = <strong>${(item.qty * item.price).toFixed(2)}</strong>
+                                                    </Col>
+                                                </Row>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ListGroup>
+                                )}
+                            </ListGroup.Item>
+                        </ListGroup>
+                    </Card>
                 </Col>
 
                 <Col md={4}>
-                    <Card>
+                    <Card className="border-0 shadow-sm">
+                        <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
+                            <h4 className="mb-0">Order Summary</h4>
+                        </Card.Header>
                         <ListGroup variant="flush">
-                            <ListGroup.Item>
-                                <h2>Order Summary</h2>
-                            </ListGroup.Item>
-
-                            <ListGroup.Item>
+                            <ListGroup.Item className="px-4">
                                 <Row>
                                     <Col>Items:</Col>
-                                    <Col>${itemsPrice.toFixed(2)}</Col>
+                                    <Col className="text-end">${itemsPrice.toFixed(2)}</Col>
                                 </Row>
                             </ListGroup.Item>
 
-                            <ListGroup.Item>
+                            <ListGroup.Item className="px-4">
                                 <Row>
                                     <Col>Shipping:</Col>
-                                    <Col>${shippingPrice.toFixed(2)}</Col>
+                                    <Col className="text-end">${shippingPrice.toFixed(2)}</Col>
                                 </Row>
                             </ListGroup.Item>
 
-                            <ListGroup.Item>
+                            <ListGroup.Item className="px-4">
                                 <Row>
                                     <Col>Tax (15%):</Col>
-                                    <Col>${taxPrice.toFixed(2)}</Col>
+                                    <Col className="text-end">${taxPrice.toFixed(2)}</Col>
                                 </Row>
                             </ListGroup.Item>
 
                             {couponDiscount > 0 && (
-                                <ListGroup.Item>
+                                <ListGroup.Item className="px-4">
                                     <Row>
                                         <Col>
                                             Coupon ({coupon.code}):
                                         </Col>
-                                        <Col className="text-success">
+                                        <Col className="text-success text-end">
                                             -${couponDiscount.toFixed(2)}
                                         </Col>
                                     </Row>
                                 </ListGroup.Item>
                             )}
 
-                            <ListGroup.Item>
+                            <ListGroup.Item className="px-4">
                                 <Row>
                                     <Col><strong>Total:</strong></Col>
-                                    <Col><strong>${totalPrice.toFixed(2)}</strong></Col>
+                                    <Col className="text-end"><strong>${totalPrice.toFixed(2)}</strong></Col>
                                 </Row>
                             </ListGroup.Item>
 
                             {error && (
-                                <ListGroup.Item>
-                                    <div className="alert alert-danger">{error}</div>
+                                <ListGroup.Item className="px-4">
+                                    <div className="alert alert-danger mb-0">{error}</div>
                                 </ListGroup.Item>
                             )}
 
-                            <ListGroup.Item>
+                            <ListGroup.Item className="p-4">
                                 <Button
                                     type="button"
-                                    className="btn-block w-100"
+                                    className="w-100 py-2 fw-bold"
                                     disabled={cartItems.length === 0 || loading}
                                     onClick={placeOrderHandler}
+                                    style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
                                 >
-                                    {loading ? 'Placing Order...' : 'Place Order'}
+                                    {loading ? 'Processing...' : 'Place Order'}
                                 </Button>
                             </ListGroup.Item>
                         </ListGroup>

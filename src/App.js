@@ -27,15 +27,25 @@ import UserProfile from "./pages/UserProfile";
 import AdminVendorManagement from "./pages/AdminVendorManagement";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import MyReviewsPage from "./pages/MyReviewsPage";
+import ReviewModeration from "./components/admin/ReviewModeration";
 import "./App.css";
 
 import { useDispatch } from "react-redux";
 import { getCart } from "./actions/cartActions";
 import { useEffect, useRef } from "react";
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ThemeProvider } from "./context/ThemeContext";
+import WishlistScreen from "./pages/WishlistScreen";
+import SplashScreen from "./components/SplashScreen";
+import { useState } from "react";
+
 function App() {
   const dispatch = useDispatch();
   const cartFetched = useRef(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -46,50 +56,61 @@ function App() {
     }
   }, []); // Empty dependency array - only run once on mount
 
+  // Show splash screen on first load
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
   return (
     <AuthProvider>
       <CartProvider>
-        <Router>
-          <Header />
-          <main>
-            <Container>
-              <Switch>
-                <Route path="/" component={HomeScreen} exact />
-                <Route path="/products/:id" component={ProductDetails} />
-                <Route path="/cart/:id?" component={CartScreen} />
-                <Route path="/shipping" component={ShippingScreen} />
-                <Route path="/app/shipping" component={ShippingScreen} />
-                <Route path="/placeorder" component={PlaceOrderScreen} />
-                <Route path="/app/login" component={Login} />
-                <Route path="/app/signup" component={SignUp} />
-                <Route path="/vendor/login" component={VendorLogin} />
-                <Route path="/vendor/signup" component={VendorSignUp} />
-                <Route path="/vendor/dashboard" component={VendorDashboard} />
-                <Route path="/vendor/orders" component={VendorOrders} />
-                <Route path="/admin" component={Admin} exact />
-                <Route path="/admin/upload" component={Admin} exact />
-                <Route path="/vendor/upload" component={Admin} exact />
-                <Route path="/admin/delete" component={AdminDeleteScreen} exact />
-                <Route
-                  path="/admin/delete/:id"
-                  component={AdminDeleteConfirm}
-                  exact
-                />
-                <Route path="/delete-confirm" component={DeleteConfirm} />
-                <Route path="/search" component={SearchResultScreen} />
-                <Route path="/profile" component={UserProfile} />
-                <Route path="/orders" component={OrdersScreen} />
-                <Route path="/admin/productlist" component={ProductListScreen} />
-                <Route path="/vendor/products" component={ProductListScreen} />
-                <Route path="/admin/orderlist" component={OrderListScreen} />
-                <Route path="/admin/vendors" component={AdminVendorManagement} exact />
-                <Route path="/app/verify/:token" component={EmailVerification} />
-                <Route path="/vendor/verify/:token" component={EmailVerification} />
-              </Switch>
-            </Container>
-          </main>
-          <Footer />
-        </Router>
+        <ThemeProvider>
+          <Router>
+            <Header />
+            <main>
+              <Container>
+                <ToastContainer position="bottom-left" autoClose={3000} />
+                <Switch>
+                  <Route path="/" component={HomeScreen} exact />
+                  <Route path="/products/:id" component={ProductDetails} />
+                  <Route path="/cart/:id?" component={CartScreen} />
+                  <Route path="/shipping" component={ShippingScreen} />
+                  <Route path="/app/shipping" component={ShippingScreen} />
+                  <Route path="/placeorder" component={PlaceOrderScreen} />
+                  <Route path="/app/login" component={Login} />
+                  <Route path="/app/signup" component={SignUp} />
+                  <Route path="/vendor/login" component={VendorLogin} />
+                  <Route path="/vendor/signup" component={VendorSignUp} />
+                  <Route path="/vendor/dashboard" component={VendorDashboard} />
+                  <Route path="/vendor/orders" component={VendorOrders} />
+                  <Route path="/admin" component={Admin} exact />
+                  <Route path="/admin/upload" component={Admin} exact />
+                  <Route path="/vendor/upload" component={Admin} exact />
+                  <Route path="/admin/delete" component={AdminDeleteScreen} exact />
+                  <Route
+                    path="/admin/delete/:id"
+                    component={AdminDeleteConfirm}
+                    exact
+                  />
+                  <Route path="/delete-confirm" component={DeleteConfirm} />
+                  <Route path="/search" component={SearchResultScreen} />
+                  <Route path="/profile" component={UserProfile} />
+                  <Route path="/my-reviews" component={MyReviewsPage} />
+                  <Route path="/orders" component={OrdersScreen} />
+                  <Route path="/wishlist" component={WishlistScreen} />
+                  <Route path="/admin/productlist" component={ProductListScreen} />
+                  <Route path="/vendor/products" component={ProductListScreen} />
+                  <Route path="/admin/orderlist" component={OrderListScreen} />
+                  <Route path="/admin/vendors" component={AdminVendorManagement} exact />
+                  <Route path="/admin/reviews" component={ReviewModeration} exact />
+                  <Route path="/app/verify/:token" component={EmailVerification} />
+                  <Route path="/vendor/verify/:token" component={EmailVerification} />
+                </Switch>
+              </Container>
+            </main>
+            <Footer />
+          </Router>
+        </ThemeProvider>
       </CartProvider>
     </AuthProvider>
   );

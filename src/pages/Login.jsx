@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 import { Container, Row, Col, Form, Button, Card, InputGroup } from "react-bootstrap";
 import "../components/css/CustomerAuth.css";
+import notificationService from "../utils/notificationService";
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -49,10 +50,13 @@ const Login = () => {
     try {
       await loginUser(email, password, isAdmin);
       setLoading(false);
+      notificationService.success("Login successful!");
       history.push(redirect);
     } catch (err) {
       setLoading(false);
-      setLoginError(err.toString());
+      const errorMessage = err.toString();
+      setLoginError(errorMessage);
+      notificationService.error(errorMessage);
     }
   };
 
@@ -71,17 +75,22 @@ const Login = () => {
       const responseData = data;
 
       if (isAdmin && (!responseData.user || responseData.user.isAdmin === false)) {
-        setLoginError("You don't have admin privileges with this Google account.");
+        const msg = "You don't have admin privileges with this Google account.";
+        setLoginError(msg);
+        notificationService.error(msg);
         return;
       }
 
       localStorage.setItem("token", responseData.token);
       localStorage.setItem("userInfo", JSON.stringify(responseData.user));
+      notificationService.success("Google Login successful!");
       window.location.href = redirect;
 
     } catch (error) {
       console.error("Google Sign In Error:", error);
-      setLoginError(error.response?.data?.message || "Google Sign-In failed.");
+      const msg = error.response?.data?.message || "Google Sign-In failed.";
+      setLoginError(msg);
+      notificationService.error(msg);
     }
   };
 

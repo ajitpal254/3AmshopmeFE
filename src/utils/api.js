@@ -51,4 +51,28 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Response interceptor for global error handling
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const errorMsg = error.response?.data?.message || error.message || 'An unexpected error occurred';
+        const serviceName = 'FrontendService';
+
+        // Log error with service name
+        console.error(`[${serviceName}] Error:`, {
+            message: errorMsg,
+            status: error.response?.status,
+            url: error.config?.url,
+            stack: error.stack
+        });
+
+        // Optional: Trigger toast notification for errors automatically
+        // import notificationService from './notificationService';
+        // notificationService.error(errorMsg); 
+        // (Commented out to avoid circular dependency or unwanted auto-toasts if handled in components)
+
+        return Promise.reject(error);
+    }
+);
+
 export default api;

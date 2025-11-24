@@ -1,27 +1,23 @@
 import React, { useState } from "react";
-import { Navbar, Nav, Container, NavDropdown, Button } from "react-bootstrap";
+import { Navbar, Nav, Container, Badge } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { withRouter } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSelector } from "react-redux";
+import { useTheme } from "../context/ThemeContext";
 import SearchBar from "./header/SearchBar";
 import MobileDrawer from "./header/MobileDrawer";
+import UserMenu from "./header/UserMenu";
+import VendorMenu from "./header/VendorMenu";
+import AuthButtons from "./header/AuthButtons";
 import "./Header.css";
 
 const Header = ({ history }) => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-
+  const { theme, toggleTheme } = useTheme();
   const { user, logoutUser, vendor, logoutVendor } = useAuth();
   const cart = useSelector((state) => state.cart);
   const cartItems = cart?.cartItems || [];
-
-  const toggleMobileMenu = () => {
-    setShowMobileMenu(!showMobileMenu);
-  };
-
-  const closeMobileMenu = () => {
-    setShowMobileMenu(false);
-  };
 
   const handleLogout = () => {
     logoutUser();
@@ -36,160 +32,84 @@ const Header = ({ history }) => {
   return (
     <header>
       <Navbar expand="lg" className="custom-navbar" sticky="top">
-        <Container>
+        <Container fluid className="px-4">
+          {/* Brand - Far Left */}
           <LinkContainer to="/">
-            <Navbar.Brand className="brand-text">
+            <Navbar.Brand className="brand-text me-0">
               <i className="fas fa-shopping-bag brand-icon"></i>
               <span className="brand-name">3AMSHOPPEE</span>
             </Navbar.Brand>
           </LinkContainer>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="mobile-menu-btn d-lg-none"
-            onClick={toggleMobileMenu}
-            aria-label="Toggle navigation"
-          >
-            <i className="fas fa-bars"></i>
-          </button>
+          {/* Search Bar - Center (Desktop) */}
+          <div className="d-none d-lg-flex flex-grow-1 justify-content-center mx-3" style={{ maxWidth: '700px' }}>
+            <SearchBar />
+          </div>
 
-          {/* Desktop Navigation */}
-          <Navbar.Collapse id="basic-navbar-nav">
-            <SearchBar className="d-flex mx-auto" />
+          {/* Mobile Cart & Menu Toggle */}
+          <div className="d-lg-none d-flex align-items-center gap-2">
+            <LinkContainer to="/cart">
+              <Nav.Link className="position-relative p-2">
+                <i className="fas fa-shopping-cart" style={{ fontSize: '1.3rem', color: '#4a5568' }}></i>
+                {cartItems.length > 0 && (
+                  <Badge pill bg="danger" className="cart-badge">
+                    {cartItems.reduce((acc, item) => acc + item.qty, 0)}
+                  </Badge>
+                )}
+              </Nav.Link>
+            </LinkContainer>
+            <button
+              className="mobile-menu-btn"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Toggle menu"
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+          </div>
 
-            <Nav className="align-items-lg-center ms-auto">
+          {/* Desktop Navigation - Far Right */}
+          <Navbar.Collapse id="basic-navbar-nav" className="flex-grow-0">
+            <Nav className="d-flex align-items-center gap-2">
+              {/* Cart Link */}
               <LinkContainer to="/cart">
                 <Nav.Link className="nav-link-modern position-relative">
-                  <i className="fas fa-shopping-cart nav-icon"></i>
-                  <span className="ms-2">Cart</span>
+                  <i className="fas fa-shopping-cart me-1"></i>
+                  Cart
                   {cartItems.length > 0 && (
-                    <span className="cart-badge">
+                    <Badge pill bg="danger" className="ms-2">
                       {cartItems.reduce((acc, item) => acc + item.qty, 0)}
-                    </span>
+                    </Badge>
                   )}
                 </Nav.Link>
               </LinkContainer>
 
-              {user && (
-                <LinkContainer to="/orders">
-                  <Nav.Link className="nav-link-modern">
-                    <i className="fas fa-box-open nav-icon"></i>
-                    <span className="ms-2">Orders</span>
-                  </Nav.Link>
-                </LinkContainer>
-              )}
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="nav-link-modern border-0 bg-transparent"
+                aria-label="Toggle theme"
+                style={{ cursor: 'pointer' }}
+              >
+                <i className={`fas fa-${theme === "light" ? "moon" : "sun"}`}></i>
+              </button>
 
+              {/* User/Vendor Menu or Auth Buttons */}
               {user ? (
-                <NavDropdown
-                  title={
-                    <div className="user-profile-wrapper">
-                      <img
-                        src={user.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random`}
-                        alt={user.name}
-                        className="user-profile-img"
-                        onError={(e) => {
-                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=random`;
-                        }}
-                      />
-                      <span className="user-name-text ms-2">{user.name?.split(' ')[0]}</span>
-                    </div>
-                  }
-                  id="username"
-                  className="nav-link-modern p-0"
-                >
-                  <div className="px-3 py-2 border-bottom mb-2">
-                    <p className="mb-0 fw-bold text-dark">{user.name}</p>
-                    <small className="text-muted">{user.email}</small>
-                  </div>
-
-                  <LinkContainer to="/profile">
-                    <NavDropdown.Item>
-                      <i className="fas fa-user-circle"></i> Profile
-                    </NavDropdown.Item>
-                  </LinkContainer>
-
-                  {user.isAdmin && (
-                    <>
-                      <div className="dropdown-divider"></div>
-                      <div className="px-3 py-1 text-muted small fw-bold text-uppercase">Admin</div>
-                      <LinkContainer to="/admin/productlist">
-                        <NavDropdown.Item>
-                          <i className="fas fa-boxes"></i> Products
-                        </NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to="/admin/orderlist">
-                        <NavDropdown.Item>
-                          <i className="fas fa-clipboard-list"></i> Orders
-                        </NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to="/vendor/dashboard">
-                        <NavDropdown.Item>
-                          <i className="fas fa-tags"></i> Coupons
-                        </NavDropdown.Item>
-                      </LinkContainer>
-                      <LinkContainer to="/admin/vendors">
-                        <NavDropdown.Item>
-                          <i className="fas fa-users-cog"></i> Vendor Management
-                        </NavDropdown.Item>
-                      </LinkContainer>
-                    </>
-                  )}
-
-                  <div className="dropdown-divider"></div>
-                  <NavDropdown.Item onClick={handleLogout} className="text-danger">
-                    <i className="fas fa-sign-out-alt"></i> Logout
-                  </NavDropdown.Item>
-                </NavDropdown>
+                <UserMenu user={user} onLogout={handleLogout} />
               ) : vendor ? (
-                <NavDropdown
-                  title={
-                    <div className="d-flex align-items-center gap-2">
-                      <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style={{ width: '38px', height: '38px' }}>
-                        <i className="fas fa-store"></i>
-                      </div>
-                      <span className="fw-bold text-dark">{vendor.name}</span>
-                    </div>
-                  }
-                  id="vendorname"
-                  className="nav-link-modern p-0"
-                >
-                  <LinkContainer to="/vendor/dashboard">
-                    <NavDropdown.Item>
-                      <i className="fas fa-tachometer-alt"></i> Dashboard
-                    </NavDropdown.Item>
-                  </LinkContainer>
-                  <LinkContainer to="/vendor/products">
-                    <NavDropdown.Item>
-                      <i className="fas fa-box"></i> My Products
-                    </NavDropdown.Item>
-                  </LinkContainer>
-                  <div className="dropdown-divider"></div>
-                  <NavDropdown.Item onClick={handleVendorLogout} className="text-danger">
-                    <i className="fas fa-sign-out-alt"></i> Logout
-                  </NavDropdown.Item>
-                </NavDropdown>
+                <VendorMenu vendor={vendor} onLogout={handleVendorLogout} />
               ) : (
-                <div className="d-flex align-items-center ms-2">
-                  <LinkContainer to="/app/login">
-                    <Nav.Link className="nav-link-modern">
-                      <i className="fas fa-user me-2"></i> Sign In
-                    </Nav.Link>
-                  </LinkContainer>
-                  <LinkContainer to="/app/signup">
-                    <Button variant="primary" className="ms-2 rounded-pill px-4 fw-bold" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)', border: 'none' }}>
-                      Sign Up
-                    </Button>
-                  </LinkContainer>
-                </div>
+                <AuthButtons />
               )}
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
+      {/* Mobile Drawer */}
       <MobileDrawer
         show={showMobileMenu}
-        onClose={closeMobileMenu}
+        onClose={() => setShowMobileMenu(false)}
         user={user}
         vendor={vendor}
         cartItems={cartItems}
