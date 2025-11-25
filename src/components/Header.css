@@ -265,6 +265,43 @@
     transition: all 0.2s ease;
 }
 
+/* Drawer Dropdown Styles */
+.drawer-nav-group {
+    margin-bottom: 0.8rem;
+}
+
+.drawer-nav-group .drawer-nav-item {
+    margin-bottom: 0;
+    cursor: pointer;
+    justify-content: space-between;
+}
+
+.drawer-nav-subitems {
+    background: rgba(248, 250, 252, 0.5);
+    border-radius: 0 0 15px 15px;
+    margin-top: -10px;
+    padding-top: 15px;
+}
+
+.drawer-nav-subitem i {
+    width: 25px;
+    text-align: center;
+    margin-right: 0.8rem;
+    font-size: 0.9rem;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Responsive */
 @media (max-width: 991px) {
     .custom-navbar .navbar-collapse {

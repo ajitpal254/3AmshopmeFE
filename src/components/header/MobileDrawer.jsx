@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import SearchBar from "./SearchBar";
@@ -12,6 +12,10 @@ const MobileDrawer = ({
     logoutUser,
     logoutVendor
 }) => {
+    const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showAdminMenu, setShowAdminMenu] = useState(false);
+    const [showVendorMenu, setShowVendorMenu] = useState(false);
+
     return (
         <>
             {/* Mobile Drawer Backdrop */}
@@ -38,49 +42,141 @@ const MobileDrawer = ({
 
                 <div className="drawer-nav">
 
-
+                    {/* User Menu Dropdown */}
                     {user && (
-                        <LinkContainer to="/orders" onClick={onClose}>
-                            <div className="drawer-nav-item">
-                                <div className="drawer-nav-icon">
-                                    <i className="fas fa-box-open"></i>
+                        <div className="drawer-nav-group">
+                            <div
+                                className="drawer-nav-item"
+                                onClick={() => setShowUserMenu(!showUserMenu)}
+                            >
+                                <div className="d-flex align-items-center">
+                                    <div className="drawer-nav-icon">
+                                        <i className="fas fa-user-circle"></i>
+                                    </div>
+                                    <span>User Menu</span>
                                 </div>
-                                <span>My Orders</span>
+                                <i className={`fas fa-chevron-${showUserMenu ? 'up' : 'down'} text-muted`}></i>
                             </div>
-                        </LinkContainer>
+
+                            {showUserMenu && (
+                                <div className="drawer-nav-subitems">
+                                    <LinkContainer to="/profile" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-id-card"></i>
+                                            <span>Profile</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/orders" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-box-open"></i>
+                                            <span>My Orders</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/my-reviews" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-star"></i>
+                                            <span>My Reviews</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/wishlist" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-heart"></i>
+                                            <span>Wishlist</span>
+                                        </div>
+                                    </LinkContainer>
+                                </div>
+                            )}
+                        </div>
                     )}
 
+                    {/* Admin Menu Dropdown */}
                     {user && user.isAdmin && (
-                        <>
-                            <div className="text-muted small fw-bold text-uppercase mt-3 mb-2 ps-2">
-                                Admin
+                        <div className="drawer-nav-group">
+                            <div
+                                className="drawer-nav-item"
+                                onClick={() => setShowAdminMenu(!showAdminMenu)}
+                            >
+                                <div className="d-flex align-items-center">
+                                    <div className="drawer-nav-icon">
+                                        <i className="fas fa-shield-alt"></i>
+                                    </div>
+                                    <span>Admin Panel</span>
+                                </div>
+                                <i className={`fas fa-chevron-${showAdminMenu ? 'up' : 'down'} text-muted`}></i>
                             </div>
-                            <LinkContainer to="/admin/productlist" onClick={onClose}>
-                                <div className="drawer-nav-item">
-                                    <div className="drawer-nav-icon">
-                                        <i className="fas fa-boxes"></i>
-                                    </div>
-                                    <span>Products</span>
+
+                            {showAdminMenu && (
+                                <div className="drawer-nav-subitems">
+                                    <LinkContainer to="/admin/productlist" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-boxes"></i>
+                                            <span>Products</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/admin/orderlist" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-clipboard-list"></i>
+                                            <span>Orders</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/vendor/dashboard" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-tags"></i>
+                                            <span>Coupons</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/admin/vendors" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-users-cog"></i>
+                                            <span>Vendors</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/admin/reviews" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-comments"></i>
+                                            <span>Reviews</span>
+                                        </div>
+                                    </LinkContainer>
                                 </div>
-                            </LinkContainer>
-                            <LinkContainer to="/admin/orderlist" onClick={onClose}>
-                                <div className="drawer-nav-item">
-                                    <div className="drawer-nav-icon">
-                                        <i className="fas fa-clipboard-list"></i>
-                                    </div>
-                                    <span>Orders</span>
-                                </div>
-                            </LinkContainer>
-                            <LinkContainer to="/vendor/dashboard" onClick={onClose}>
-                                <div className="drawer-nav-item">
-                                    <div className="drawer-nav-icon">
-                                        <i className="fas fa-tags"></i>
-                                    </div>
-                                    <span>Coupons</span>
-                                </div>
-                            </LinkContainer>
-                        </>
+                            )}
+                        </div>
                     )}
+
+                    {/* Vendor Menu Dropdown */}
+                    {vendor && (
+                        <div className="drawer-nav-group">
+                            <div
+                                className="drawer-nav-item"
+                                onClick={() => setShowVendorMenu(!showVendorMenu)}
+                            >
+                                <div className="d-flex align-items-center">
+                                    <div className="drawer-nav-icon">
+                                        <i className="fas fa-store"></i>
+                                    </div>
+                                    <span>Vendor Menu</span>
+                                </div>
+                                <i className={`fas fa-chevron-${showVendorMenu ? 'up' : 'down'} text-muted`}></i>
+                            </div>
+
+                            {showVendorMenu && (
+                                <div className="drawer-nav-subitems">
+                                    <LinkContainer to="/vendor/dashboard" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-tachometer-alt"></i>
+                                            <span>Dashboard</span>
+                                        </div>
+                                    </LinkContainer>
+                                    <LinkContainer to="/vendor/products" onClick={onClose}>
+                                        <div className="drawer-nav-subitem">
+                                            <i className="fas fa-box"></i>
+                                            <span>My Products</span>
+                                        </div>
+                                    </LinkContainer>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                 </div>
 
                 <div className="drawer-user-section">
@@ -97,7 +193,7 @@ const MobileDrawer = ({
                                         }
                                         alt={user.name}
                                         className="user-profile-img"
-                                        style={{ width: "40px", height: "40px" }}
+                                        style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover" }}
                                     />
                                     <div className="ms-3">
                                         <div className="fw-bold text-dark">{user.name}</div>
