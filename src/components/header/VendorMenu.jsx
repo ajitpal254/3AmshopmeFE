@@ -13,7 +13,8 @@ const VendorMenu = ({ vendor, onLogout }) => (
             </div>
         }
         id="vendorname"
-        className="nav-link-modern p-0"
+        align="end"
+        className="user-dropdown-nav nav-link-modern p-0"
     >
         <LinkContainer to="/vendor/dashboard">
             <NavDropdown.Item>

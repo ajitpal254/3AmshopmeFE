@@ -113,20 +113,6 @@
 .search-btn:hover {
     background: rgba(102, 126, 234, 0.1);
     color: #667eea;
-}
-
-.user-dropdown-nav .dropdown-toggle:hover {
-    background: rgba(102, 126, 234, 0.1);
-}
-
-.user-dropdown-nav .dropdown-toggle::after {
-    margin-left: 0.5rem !important;
-}
-/* Mobile Menu Button */
-.mobile-menu-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
     color: #4a5568;
     padding: 0.5rem;
     cursor: pointer;
