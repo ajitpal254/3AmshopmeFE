@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Carousel } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './HeroBanner.css';
 
 const HeroBanner = () => {
     const [index, setIndex] = useState(0);
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleSelect = (selectedIndex) => {
         setIndex(selectedIndex);
@@ -59,7 +59,7 @@ const HeroBanner = () => {
                                 <p className="hero-subtitle animate-slide-up">{banner.subtitle}</p>
                                 <button
                                     className="hero-cta animate-scale-in"
-                                    onClick={() => history.push(banner.link)}
+                                    onClick={() => navigate(banner.link)}
                                 >
                                     {banner.cta}
                                 </button>

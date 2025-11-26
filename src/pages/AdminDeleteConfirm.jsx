@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button, Modal, Row, Col, Image, ListGroup } from "react-bootstrap";
 import api from "../utils/api";
 
 const AdminDeleteConfirm = () => {
     const { id } = useParams();
-    const history = useHistory();
+    const navigate = useNavigate();
     const [product, setProduct] = useState({});
     const [show, setShow] = useState(true);
 
@@ -23,13 +23,13 @@ const AdminDeleteConfirm = () => {
 
     const handleClose = () => {
         setShow(false);
-        history.push("/admin/delete");
+        navigate("/admin/delete");
     };
 
     const deleteHandler = async () => {
         try {
             await api.delete(`/admin/delete/${id}`);
-            history.push("/admin/delete");
+            navigate("/admin/delete");
         } catch (error) {
             console.error("Error deleting product:", error);
         }

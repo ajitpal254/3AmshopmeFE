@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { clearCart } from '../actions/cartActions';
 import api from '../utils/api';
 import notificationService from "../utils/notificationService";
 
 const PlaceOrderScreen = () => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const cart = useSelector((state) => state.cart);
     const { cartItems, shippingAddress, coupon } = cart;
@@ -21,9 +21,9 @@ const PlaceOrderScreen = () => {
 
     useEffect(() => {
         if (!shippingAddress.address && !orderPlaced) {
-            history.push('/shipping');
+            navigate('/shipping');
         }
-    }, [shippingAddress, history, orderPlaced]);
+    }, [shippingAddress, navigate, orderPlaced]);
 
     // Calculate prices
     const itemsPrice = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
@@ -76,7 +76,7 @@ const PlaceOrderScreen = () => {
             notificationService.success("Order placed successfully!");
 
             // Redirect to order details
-            history.push(`/orders/${data._id}`);
+            navigate(`/orders/${data._id}`);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to place order');
             notificationService.error(err.response?.data?.message || 'Failed to place order');

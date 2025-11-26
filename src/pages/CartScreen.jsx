@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col, ListGroup, Image, Form, Button, Card, Alert, InputGroup, Modal } from 'react-bootstrap'
 import { addToCart, removeFromCart, applyCoupon, removeCoupon, clearCart } from '../actions/cartActions'
 import notificationService from "../utils/notificationService";
 import { formatPrice, getCurrencySymbol } from '../utils/currencyUtils';
 
-const CartScreen = ({ match, location, history }) => {
-    const productId = match.params.id
+const CartScreen = () => {
+    const { id: productId } = useParams()
+    const location = useLocation()
+    const navigate = useNavigate()
     const qty = location.search ? Number(location.search.split('=')[1]) : 1
 
     const [couponCode, setCouponCode] = useState('')
@@ -47,7 +49,7 @@ const CartScreen = ({ match, location, history }) => {
     }
 
     const checkoutHandler = () => {
-        history.push('/app/login?redirect=shipping')
+        navigate('/app/login?redirect=shipping')
     }
 
     const handleApplyCoupon = async () => {

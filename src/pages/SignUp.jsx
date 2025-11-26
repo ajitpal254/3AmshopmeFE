@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useHistory, Link } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebaseconfig";
@@ -24,7 +24,7 @@ const SignUp = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
-    const history = useHistory();
+    const navigate = useNavigate();
     const { signupUser } = useAuth();
 
     const { name, email, phone, address, city, country, postalCode, password } = user;
@@ -52,7 +52,7 @@ const SignUp = () => {
             });
             setLoading(false);
             notificationService.success("Account created successfully!");
-            history.push('/');
+            navigate('/');
         } catch (err) {
             setLoading(false);
             const errorMessage = err.toString();

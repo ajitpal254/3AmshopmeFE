@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { Form, FormControl, Button } from "react-bootstrap";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SearchBar = ({ className, onSearch }) => {
     const [keyword, setKeyword] = useState("");
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const submitHandler = (e) => {
         e.preventDefault();
         if (keyword.trim()) {
-            history.push(`/search?keyword=${keyword}`);
+            navigate(`/search?keyword=${keyword}`);
         } else {
-            history.push("/");
+            navigate("/");
         }
         if (onSearch) {
             onSearch();

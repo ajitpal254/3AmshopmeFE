@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useHistory } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Row, Col, Form, Button } from "react-bootstrap";
 import { ProductScreen } from "../components/ProductScreen";
 import api from "../utils/api";
@@ -9,13 +9,9 @@ const SearchResultScreen = () => {
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const location = useLocation();
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchSearchResults();
-  }, [location.search]);
-
-  const fetchSearchResults = async () => {
+  const fetchSearchResults = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams(location.search);
@@ -44,12 +40,14 @@ const SearchResultScreen = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [location.search, sortBy]);
+
+  useEffect(() => {
+    fetchSearchResults();
+  }, [fetchSearchResults]);
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
-    // Trigger refetch with new sort option
-    setTimeout(() => fetchSearchResults(), 0);
   };
 
   const getSearchKeyword = () => {
@@ -110,7 +108,7 @@ const SearchResultScreen = () => {
           </p>
           <Button
             variant="primary"
-            onClick={() => history.push('/')}
+            onClick={() => navigate('/')}
           >
             <i className="fas fa-home me-2"></i>
             Go to Homepage

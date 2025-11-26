@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../firebaseconfig";
-import { NavLink, useHistory, useLocation, Link } from "react-router-dom";
+import { NavLink, useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
 import { Container, Row, Col, Form, Button, Card, InputGroup } from "react-bootstrap";
@@ -18,7 +18,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const { loginUser, user: loggedInUser } = useAuth();
 
@@ -29,9 +29,9 @@ const Login = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (loggedInUser) {
-      history.push(redirect);
+      navigate(redirect);
     }
-  }, [loggedInUser, history, redirect]);
+  }, [loggedInUser, navigate, redirect]);
 
   const onChange = (e) => {
     setLoginError("");
@@ -51,7 +51,7 @@ const Login = () => {
       await loginUser(email, password, isAdmin);
       setLoading(false);
       notificationService.success("Login successful!");
-      history.push(redirect);
+      navigate(redirect);
     } catch (err) {
       setLoading(false);
       const errorMessage = err.toString();

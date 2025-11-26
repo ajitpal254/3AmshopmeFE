@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import api from '../utils/api';
@@ -24,7 +24,7 @@ const AdminVendorManagement = () => {
     });
     
     const [rejectionReason, setRejectionReason] = useState('');
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchStats();
@@ -59,7 +59,7 @@ const AdminVendorManagement = () => {
             if (err.response?.status === 403 || err.response?.status === 401) {
                 setError('You do not have admin access.');
                 toast.error('You do not have admin access.');
-                setTimeout(() => history.push('/'), 2000);
+                setTimeout(() => navigate('/'), 2000);
             } else {
                 setError('Failed to load vendors');
                 toast.error('Failed to load vendors');

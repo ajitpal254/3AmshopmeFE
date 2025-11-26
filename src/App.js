@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -72,44 +72,44 @@ function App() {
             <main>
               <Container>
                 <ToastContainer position="bottom-left" autoClose={3000} />
-                <Switch>
-                  <Route path="/" component={HomeScreen} exact />
-                  <Route path="/products/:id" component={ProductDetails} />
-                  <Route path="/cart/:id?" component={CartScreen} />
-                  <Route path="/shipping" component={ShippingScreen} />
-                  <Route path="/app/shipping" component={ShippingScreen} />
-                  <Route path="/placeorder" component={PlaceOrderScreen} />
-                  <Route path="/app/login" component={Login} />
-                  <Route path="/app/signup" component={SignUp} />
-                  <Route path="/vendor/login" component={VendorLogin} />
-                  <Route path="/vendor/signup" component={VendorSignUp} />
-                  <Route path="/vendor/dashboard" component={VendorDashboard} />
-                  <Route path="/vendor/orders" component={VendorOrders} />
-                  <Route path="/admin" component={Admin} exact />
-                  <Route path="/admin/upload" component={Admin} exact />
-                  <Route path="/vendor/upload" component={Admin} exact />
-                  <Route path="/admin/delete" component={AdminDeleteScreen} exact />
+                <Routes>
+                  <Route path="/" element={<HomeScreen />} />
+                  <Route path="/products/:id" element={<ProductDetails />} />
+                  <Route path="/cart" element={<CartScreen />} />
+                  <Route path="/cart/:id" element={<CartScreen />} />
+                  <Route path="/shipping" element={<ShippingScreen />} />
+                  <Route path="/app/shipping" element={<ShippingScreen />} />
+                  <Route path="/placeorder" element={<PlaceOrderScreen />} />
+                  <Route path="/app/login" element={<Login />} />
+                  <Route path="/app/signup" element={<SignUp />} />
+                  <Route path="/vendor/login" element={<VendorLogin />} />
+                  <Route path="/vendor/signup" element={<VendorSignUp />} />
+                  <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+                  <Route path="/vendor/orders" element={<VendorOrders />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin/upload" element={<Admin />} />
+                  <Route path="/vendor/upload" element={<Admin />} />
+                  <Route path="/admin/delete" element={<AdminDeleteScreen />} />
                   <Route
                     path="/admin/delete/:id"
-                    component={AdminDeleteConfirm}
-                    exact
+                    element={<AdminDeleteConfirm />}
                   />
-                  <Route path="/delete-confirm" component={DeleteConfirm} />
-                  <Route path="/search" component={AllProducts} />
-                  <Route path="/all-products" component={AllProducts} />
-                  <Route path="/profile" component={UserProfile} />
-                  <Route path="/my-reviews" component={MyReviewsPage} />
-                  <Route path="/orders/:id" component={OrderScreen} />
-                  <Route path="/orders" component={OrdersScreen} />
-                  <Route path="/wishlist" component={WishlistScreen} />
-                  <Route path="/admin/productlist" component={ProductListScreen} />
-                  <Route path="/vendor/products" component={ProductListScreen} />
-                  <Route path="/admin/orderlist" component={OrderListScreen} />
-                  <Route path="/admin/vendors" component={AdminVendorManagement} exact />
-                  <Route path="/admin/reviews" component={ReviewModeration} exact />
-                  <Route path="/app/verify/:token" component={EmailVerification} />
-                  <Route path="/vendor/verify/:token" component={EmailVerification} />
-                </Switch>
+                  <Route path="/delete-confirm" element={<DeleteConfirm />} />
+                  <Route path="/search" element={<AllProducts />} />
+                  <Route path="/all-products" element={<AllProducts />} />
+                  <Route path="/profile" element={<UserProfile />} />
+                  <Route path="/my-reviews" element={<MyReviewsPage />} />
+                  <Route path="/orders/:id" element={<OrderScreen />} />
+                  <Route path="/orders" element={<OrdersScreen />} />
+                  <Route path="/wishlist" element={<WishlistScreen />} />
+                  <Route path="/admin/productlist" element={<ProductListScreen />} />
+                  <Route path="/vendor/products" element={<ProductListScreen />} />
+                  <Route path="/admin/orderlist" element={<OrderListScreen />} />
+                  <Route path="/admin/vendors" element={<AdminVendorManagement />} />
+                  <Route path="/admin/reviews" element={<ReviewModeration />} />
+                  <Route path="/app/verify/:token" element={<EmailVerification />} />
+                  <Route path="/vendor/verify/:token" element={<EmailVerification />} />
+                </Routes>
               </Container>
             </main>
             <Footer />

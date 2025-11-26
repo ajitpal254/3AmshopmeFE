@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Badge } from "react-bootstrap";
 import Rating from './Rating'
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../actions/cartActions";
 import api from '../utils/api';
@@ -13,7 +13,7 @@ import './ProductScreen.css';
 
 export const ProductScreen = ({ product }) => {
     const dispatch = useDispatch();
-    const history = useHistory();
+    const navigate = useNavigate();
     const { user } = useAuth();
     const [isHovered, setIsHovered] = useState(false);
     const [showQuickView, setShowQuickView] = useState(false);
@@ -34,7 +34,7 @@ export const ProductScreen = ({ product }) => {
         e.stopPropagation();
         if (!user) {
             notificationService.info('Please login to add to wishlist');
-            history.push('/app/login');
+            navigate('/app/login');
             return;
         }
         try {

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { saveShippingAddress } from '../actions/cartActions'
 
 const ShippingScreen = () => {
-    const history = useHistory()
+    const navigate = useNavigate()
     const cart = useSelector((state) => state.cart)
     const { shippingAddress } = cart
 
@@ -19,7 +19,7 @@ const ShippingScreen = () => {
     const submitHandler = (e) => {
         e.preventDefault()
         dispatch(saveShippingAddress({ address, city, postalCode, country }))
-        history.push('/placeorder')
+        navigate('/placeorder')
     }
 
     return (

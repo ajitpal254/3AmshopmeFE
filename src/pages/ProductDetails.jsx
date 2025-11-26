@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Row, Col, ListGroup, Card, Button, Form, Badge, Container, Alert } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import Rating from "../components/Rating";
@@ -41,7 +41,7 @@ function useRelatedItems(currentProduct) {
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const currencyState = useSelector((state) => state.currencyState);
@@ -72,7 +72,7 @@ const ProductDetails = () => {
   const relatedItems = useRelatedItems(product);
 
   const addToCartHandler = () => {
-    history.push(`/cart/${id}?qty=${qty}`);
+    navigate(`/cart/${id}?qty=${qty}`);
     notificationService.success("Added to Cart");
   };
 
@@ -258,7 +258,7 @@ const ProductDetails = () => {
                     onClick={async () => {
                       if (!user) {
                         notificationService.info('Please login to vote on reviews');
-                        history.push('/app/login');
+                        navigate('/app/login');
                         return;
                       }
 

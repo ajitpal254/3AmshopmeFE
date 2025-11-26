@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, Button, Badge, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 
-const OrderListScreen = ({ history }) => {
+const OrderListScreen = () => {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -202,7 +204,7 @@ const OrderListScreen = ({ history }) => {
                                     <Button
                                         variant="info"
                                         size="sm"
-                                        onClick={() => history.push(`/orders/${order._id}`)}
+                                        onClick={() => navigate(`/orders/${order._id}`)}
                                     >
                                         <i className="fas fa-eye"></i> Details
                                     </Button>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Container, Row, Col, Form, Button, Card, InputGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
 import "../components/css/VendorSignUp.css";
@@ -23,7 +23,7 @@ function VendorSignUp() {
   const [niche, setNiche] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const { signupVendor } = useAuth();
 
   const handleChange = (e) => {
@@ -74,8 +74,10 @@ function VendorSignUp() {
       await signupVendor(submissionData);
       // Success handling
       setLoading(false);
-      history.push("/vendor/login", {
-        message: "Registration successful! Please check your email for verification. Your account is pending admin approval."
+      navigate("/vendor/login", {
+        state: {
+          message: "Registration successful! Please check your email for verification. Your account is pending admin approval."
+        }
       });
     } catch (err) {
       setLoading(false);

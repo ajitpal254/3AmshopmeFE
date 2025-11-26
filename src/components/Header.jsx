@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Navbar, Nav, Container, Badge } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { withRouter } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSelector } from "react-redux";
 import { useTheme } from "../context/ThemeContext";
@@ -13,7 +13,8 @@ import AuthButtons from "./header/AuthButtons";
 import CurrencySwitcher from "./CurrencySwitcher";
 import "./Header.css";
 
-const Header = ({ history }) => {
+const Header = () => {
+  const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { user, logoutUser, vendor, logoutVendor } = useAuth();
@@ -22,12 +23,12 @@ const Header = ({ history }) => {
 
   const handleLogout = () => {
     logoutUser();
-    history.push("/app/login");
+    navigate("/app/login");
   };
 
   const handleVendorLogout = () => {
     logoutVendor();
-    history.push("/vendor/login");
+    navigate("/vendor/login");
   };
 
   return (
@@ -124,4 +125,4 @@ const Header = ({ history }) => {
   );
 };
 
-export default withRouter(Header);
+export default Header;

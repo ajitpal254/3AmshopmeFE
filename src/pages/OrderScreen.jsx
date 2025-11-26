@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { useSelector } from 'react-redux';
@@ -12,8 +12,9 @@ import StripePaymentForm from '../components/StripePaymentForm';
 import TrackOrder from '../components/TrackOrder';
 import { formatPrice, getCurrencySymbol } from '../utils/currencyUtils';
 
-const OrderScreen = ({ match, history }) => {
-    const orderId = match.params.id;
+const OrderScreen = () => {
+    const { id: orderId } = useParams();
+    const navigate = useNavigate();
 
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ const OrderScreen = ({ match, history }) => {
 
     useEffect(() => {
         if (!userInfo) {
-            history.push('/app/login');
+            navigate('/app/login');
         }
 
         const fetchStripeConfig = async () => {
@@ -59,7 +60,7 @@ const OrderScreen = ({ match, history }) => {
         if (!order || order._id !== orderId) {
             fetchOrder();
         }
-    }, [orderId, order, userInfo, history]);
+    }, [orderId, order, userInfo, navigate]);
 
     const successPaymentHandler = async (paymentResult) => {
         try {

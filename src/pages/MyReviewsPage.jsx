@@ -1,14 +1,14 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import MyReviews from '../components/MyReviews';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const MyReviewsPage = () => {
     const { user } = useAuth();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     if (!user) {
-        history.push('/app/login');
+        navigate('/app/login');
         return null;
     }
 

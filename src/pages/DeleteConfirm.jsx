@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Button,
   Col,
@@ -12,7 +12,7 @@ import {
 import api from "../utils/api";
 
 const DeleteConfirm = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { id } = useParams();
   const [cart, setCart] = useState({});
   const [show, setShow] = useState(true);
@@ -31,7 +31,7 @@ const DeleteConfirm = () => {
 
   const handleClose = () => {
     setShow(false);
-    history.push("/cart");
+    navigate("/cart");
   };
 
   const deleteFromCart = async () => {

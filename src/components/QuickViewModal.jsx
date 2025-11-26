@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Row, Col, Badge } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../actions/cartActions';
 import Rating from './Rating';
@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import './QuickViewModal.css';
 
 const QuickViewModal = ({ show, onHide, product }) => {
-    const history = useHistory();
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const { user } = useAuth();
     const [qty, setQty] = useState(1);
@@ -42,7 +42,7 @@ const QuickViewModal = ({ show, onHide, product }) => {
     const handleAddToWishlist = async () => {
         if (!user) {
             notificationService.info('Please login to add to wishlist');
-            history.push('/app/login');
+            navigate('/app/login');
             return;
         }
         try {
@@ -56,7 +56,7 @@ const QuickViewModal = ({ show, onHide, product }) => {
 
     const handleViewFullDetails = () => {
         onHide();
-        history.push(`/products/${product._id}`);
+        navigate(`/products/${product._id}`);
     };
 
     return (

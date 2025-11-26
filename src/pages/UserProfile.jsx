@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { uploadProfilePicture } from '../utils/cloudinaryUpload';
 
 const UserProfile = () => {
     const { user, updateUser } = useAuth();
-    const history = useHistory();
+    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -33,11 +33,11 @@ const UserProfile = () => {
 
     useEffect(() => {
         if (!user) {
-            history.push('/app/login');
+            navigate('/app/login');
             return;
         }
         loadProfile();
-    }, [user, history]);
+    }, [user, navigate]);
 
     const loadProfile = async () => {
         try {
