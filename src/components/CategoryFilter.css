@@ -1,60 +1,66 @@
 .category-filter-container {
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin: 1.5rem 0;
+    padding: 0;
 }
 
 .category-filter-title {
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: 1rem;
-    color: #2d3748;
-    font-size: 1.2rem;
+    color: #1a202c;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding-left: 0.5rem;
 }
 
 .category-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.8rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+}
+
+.category-chips::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
 .category-chip {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.95rem;
-    font-weight: 500;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e2e8f0;
+    border-radius: 50px;
+    background: white;
+    color: #4a5568;
+    white-space: nowrap;
     user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.category-chip:not(.active) {
-    background: white !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.category-chip:not(.active):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-color: var(--primary-color, #6366f1);
+.category-chip:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    color: #2d3748;
 }
 
 .category-chip.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    background: #1a202c;
+    color: white;
+    border-color: #1a202c;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .category-chips {
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        padding-bottom: 0.5rem;
-    }
-
-    .category-chip {
-        flex-shrink: 0;
-    }
+.category-chip.active:hover {
+    background: #000;
+    transform: translateY(-1px);
 }
+
+/* Add a fade effect to the right if needed, or just keep it simple */

@@ -17,8 +17,8 @@ const Admin = () => {
     category: "",
     countInStock: "",
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -30,25 +30,42 @@ const Admin = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setError("File size too large (max 10MB)");
-        return;
-      }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-      setError("");
+    const files = Array.from(e.target.files);
+    
+    // Validate files
+    const validFiles = files.filter(file => {
+        if (file.size > 10 * 1024 * 1024) {
+            setError("One or more files are too large (max 10MB)");
+            return false;
+        }
+        return true;
+    });
+
+    if (validFiles.length > 0) {
+        setImageFiles(prev => [...prev, ...validFiles]);
+        
+        // Generate previews
+        const newPreviews = [];
+        let processed = 0;
+        
+        validFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                newPreviews.push(reader.result);
+                processed++;
+                if (processed === validFiles.length) {
+                    setImagePreviews(prev => [...prev, ...newPreviews]);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+        setError("");
     }
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
+  const handleRemoveImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -58,21 +75,30 @@ const Admin = () => {
     setLoading(true);
 
     try {
-      let imageUrl = "";
+      const imageUrls = [];
 
-      if (imageFile) {
-        imageUrl = await uploadProductImage(imageFile, (progress) => {
-          setUploadProgress(progress);
-        });
+      if (imageFiles.length > 0) {
+        // Upload images sequentially to track progress better or use Promise.all
+        // For simplicity and progress tracking, let's do it one by one or just sum it up.
+        // We'll just upload them.
+        for (let i = 0; i < imageFiles.length; i++) {
+            const url = await uploadProductImage(imageFiles[i], (progress) => {
+                // Approximate total progress
+                const totalProgress = Math.round(((i * 100) + progress) / imageFiles.length);
+                setUploadProgress(totalProgress);
+            });
+            imageUrls.push(url);
+        }
       } else {
-        setError("Please upload a product image");
+        setError("Please upload at least one product image");
         setLoading(false);
         return;
       }
 
       const productData = {
         ...formData,
-        image: imageUrl,
+        image: imageUrls[0], // Main image
+        images: imageUrls,   // All images
         rating: 0, // Default rating
       };
 
@@ -87,7 +113,8 @@ const Admin = () => {
         category: "",
         countInStock: "",
       });
-      handleRemoveImage();
+      setImageFiles([]);
+      setImagePreviews([]);
       setUploadProgress(0);
       window.scrollTo(0, 0);
 
@@ -121,7 +148,7 @@ const Admin = () => {
 
                 <Form onSubmit={handleSubmit}>
                   <ImageUploader
-                    imagePreview={imagePreview}
+                    imagePreviews={imagePreviews}
                     onImageChange={handleImageChange}
                     onRemove={handleRemoveImage}
                     uploadProgress={uploadProgress}

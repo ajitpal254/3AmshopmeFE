@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, Table, Spinner, Alert, Badge, Button } from 'react-bootstrap';
+import { Container, Card, Table, Spinner, Alert, Badge, Button, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import api from '../utils/api';
 import '../components/css/VendorOrders.css';
 
@@ -8,6 +9,14 @@ const VendorOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [modalConfig, setModalConfig] = useState({
+        title: '',
+        message: '',
+        action: null
+    });
 
     const fetchOrders = async () => {
         try {
@@ -15,6 +24,7 @@ const VendorOrders = () => {
             setOrders(data);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to fetch orders');
+            toast.error('Failed to fetch orders');
         } finally {
             setLoading(false);
         }
@@ -24,24 +34,48 @@ const VendorOrders = () => {
         fetchOrders();
     }, []);
 
-    const handleMarkDelivered = async (orderId) => {
-        if (!window.confirm('Are you sure you want to mark this order as delivered?')) return;
-        try {
-            await api.put(`/vendor/orders/${orderId}/deliver`);
-            fetchOrders(); // Refresh list
-        } catch (err) {
-            alert(err.response?.data?.message || 'Failed to update status');
-        }
+    const openConfirmModal = (title, message, action) => {
+        setModalConfig({ title, message, action });
+        setShowModal(true);
     };
 
-    const handleMarkPaid = async (orderId) => {
-        if (!window.confirm('Are you sure you want to mark this order as paid?')) return;
-        try {
-            await api.put(`/vendor/orders/${orderId}/pay`);
-            fetchOrders(); // Refresh list
-        } catch (err) {
-            alert(err.response?.data?.message || 'Failed to update status');
+    const handleConfirmAction = async () => {
+        if (modalConfig.action) {
+            await modalConfig.action();
         }
+        setShowModal(false);
+    };
+
+    const handleMarkDelivered = (orderId) => {
+        openConfirmModal(
+            'Confirm Delivery',
+            'Are you sure you want to mark this order as delivered?',
+            async () => {
+                try {
+                    await api.put(`/vendor/orders/${orderId}/deliver`);
+                    toast.success('Order marked as delivered');
+                    fetchOrders(); // Refresh list
+                } catch (err) {
+                    toast.error(err.response?.data?.message || 'Failed to update status');
+                }
+            }
+        );
+    };
+
+    const handleMarkPaid = (orderId) => {
+        openConfirmModal(
+            'Confirm Payment',
+            'Are you sure you want to mark this order as paid?',
+            async () => {
+                try {
+                    await api.put(`/vendor/orders/${orderId}/pay`);
+                    toast.success('Order marked as paid');
+                    fetchOrders(); // Refresh list
+                } catch (err) {
+                    toast.error(err.response?.data?.message || 'Failed to update status');
+                }
+            }
+        );
     };
 
     return (
@@ -130,6 +164,22 @@ const VendorOrders = () => {
                         </div>
                     </Card>
                 )}
+
+                {/* Confirmation Modal */}
+                <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>{modalConfig.title}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>{modalConfig.message}</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="primary" onClick={handleConfirmAction}>
+                            Confirm
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </div>
     );

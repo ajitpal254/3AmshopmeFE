@@ -18,9 +18,9 @@ import Admin from "./pages/Admin";
 import AdminDeleteScreen from "./pages/AdminDeleteScreen";
 import AdminDeleteConfirm from "./pages/AdminDeleteConfirm";
 import DeleteConfirm from "./pages/DeleteConfirm";
-import SearchResultScreen from "./pages/SearchResultScreen";
 import EmailVerification from "./pages/EmailVerification";
 import OrderScreen from "./pages/OrderScreen";
+import AllProducts from "./pages/AllProducts";
 
 import OrdersScreen from "./pages/OrdersScreen";
 import ProductListScreen from "./pages/ProductListScreen";
@@ -95,7 +95,8 @@ function App() {
                     exact
                   />
                   <Route path="/delete-confirm" component={DeleteConfirm} />
-                  <Route path="/search" component={SearchResultScreen} />
+                  <Route path="/search" component={AllProducts} />
+                  <Route path="/all-products" component={AllProducts} />
                   <Route path="/profile" component={UserProfile} />
                   <Route path="/my-reviews" component={MyReviewsPage} />
                   <Route path="/orders/:id" component={OrderScreen} />

@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table, Button, Modal } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import { toast } from 'react-toastify';
 import api from "../utils/api";
 
 const AdminDeleteScreen = () => {
     const [products, setProducts] = useState([]);
+    
+    // Delete Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -13,19 +18,28 @@ const AdminDeleteScreen = () => {
                 setProducts(data);
             } catch (error) {
                 console.error("Error fetching products:", error);
+                toast.error("Failed to fetch products");
             }
         };
         fetchProducts();
     }, []);
 
-    const deleteHandler = async (id) => {
-        if (window.confirm("Are you sure you want to delete this product?")) {
-            try {
-                await api.delete(`/admin/delete/${id}`);
-                setProducts(products.filter((product) => product._id !== id));
-            } catch (error) {
-                console.error("Error deleting product:", error);
-            }
+    const confirmDelete = (id) => {
+        setProductToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const deleteHandler = async () => {
+        if (!productToDelete) return;
+        
+        try {
+            await api.delete(`/admin/delete/${productToDelete}`);
+            setProducts(products.filter((product) => product._id !== productToDelete));
+            toast.success("Product deleted successfully");
+            setShowDeleteModal(false);
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            toast.error("Failed to delete product");
         }
     };
 
@@ -60,7 +74,7 @@ const AdminDeleteScreen = () => {
                                 <Button
                                     variant="danger"
                                     className="btn-sm"
-                                    onClick={() => deleteHandler(product._id)}
+                                    onClick={() => confirmDelete(product._id)}
                                 >
                                     <i className="fas fa-trash"></i>
                                 </Button>
@@ -69,6 +83,24 @@ const AdminDeleteScreen = () => {
                     ))}
                 </tbody>
             </Table>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Delete</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this product? This action cannot be undone.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={deleteHandler}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

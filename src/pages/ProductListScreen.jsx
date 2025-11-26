@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Row, Col, Modal, Form, Badge } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
@@ -9,9 +10,16 @@ const ProductListScreen = ({ history }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+    // Discount Modal State
     const [showDiscountModal, setShowDiscountModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [discountPercentage, setDiscountPercentage] = useState('');
+
+    // Delete Confirmation Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
+
     const { user, vendor } = useAuth();
 
     useEffect(() => {
@@ -26,20 +34,28 @@ const ProductListScreen = ({ history }) => {
             setProducts(data);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to fetch products');
+            toast.error('Failed to fetch products');
         } finally {
             setLoading(false);
         }
     };
 
-    const deleteHandler = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
-            try {
-                const endpoint = vendor ? `/vendor/delete/${id}` : `/admin/delete/${id}`;
-                await api.delete(endpoint);
-                fetchProducts();
-            } catch (err) {
-                alert(err.response?.data?.message || 'Failed to delete product');
-            }
+    const confirmDelete = (id) => {
+        setProductToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const deleteHandler = async () => {
+        if (!productToDelete) return;
+
+        try {
+            const endpoint = vendor ? `/vendor/delete/${productToDelete}` : `/admin/delete/${productToDelete}`;
+            await api.delete(endpoint);
+            toast.success('Product deleted successfully');
+            fetchProducts();
+            setShowDeleteModal(false);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to delete product');
         }
     };
 
@@ -54,7 +70,7 @@ const ProductListScreen = ({ history }) => {
 
         const discount = parseFloat(discountPercentage);
         if (discount < 0 || discount > 100) {
-            alert('Discount must be between 0 and 100');
+            toast.error('Discount must be between 0 and 100');
             return;
         }
 
@@ -68,10 +84,11 @@ const ProductListScreen = ({ history }) => {
                 isOnDiscount: discount > 0
             });
 
+            toast.success('Discount updated successfully');
             setShowDiscountModal(false);
             fetchProducts();
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to update discount');
+            toast.error(err.response?.data?.message || 'Failed to update discount');
         }
     };
 
@@ -178,7 +195,7 @@ const ProductListScreen = ({ history }) => {
                                         <Button
                                             variant="danger"
                                             size="sm"
-                                            onClick={() => deleteHandler(product._id)}
+                                            onClick={() => confirmDelete(product._id)}
                                         >
                                             <i className="fas fa-trash"></i>
                                         </Button>
@@ -225,6 +242,24 @@ const ProductListScreen = ({ history }) => {
                     </Button>
                     <Button variant="primary" onClick={handleDiscountSubmit}>
                         Apply Discount
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Delete</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this product? This action cannot be undone.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={deleteHandler}>
+                        Delete
                     </Button>
                 </Modal.Footer>
             </Modal>

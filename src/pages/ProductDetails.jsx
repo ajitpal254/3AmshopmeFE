@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useHistory } from "react-router-dom";
-import { Row, Col, Image, ListGroup, Card, Button, Form, Badge, Container, Alert } from "react-bootstrap";
+import { Row, Col, ListGroup, Card, Button, Form, Badge, Container, Alert } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import Rating from "../components/Rating";
 import api from "../utils/api";
@@ -55,7 +55,7 @@ const ProductDetails = () => {
   const [successProductReview, setSuccessProductReview] = useState(false);
   const [loadingProductReview, setLoadingProductReview] = useState(false);
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const { data } = await api.get(`/products/${id}`);
       setProduct(data);
@@ -63,11 +63,11 @@ const ProductDetails = () => {
       console.error("Error fetching product", error);
       notificationService.error("Failed to load product details");
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchProduct();
-  }, [id]);
+  }, [fetchProduct]);
 
   const relatedItems = useRelatedItems(product);
 
@@ -133,9 +133,7 @@ const ProductDetails = () => {
 
       <Row className="mb-5">
         <Col md={6} className="mb-4 mb-md-0">
-          <div className="p-4 bg-white rounded shadow-sm d-flex align-items-center justify-content-center" style={{ minHeight: '400px' }}>
-            <Image src={product.image} alt={product.name} fluid style={{ maxHeight: '500px', objectFit: 'contain' }} />
-          </div>
+          <ProductImageGallery product={product} />
         </Col>
 
         <Col md={6}>
@@ -406,6 +404,79 @@ export const RelatedItemsList = ({ relatedItems }) => {
           );
         })}
       </div>
+    </div>
+  );
+};
+
+const ProductImageGallery = ({ product }) => {
+  const [activeImage, setActiveImage] = useState('');
+  const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center center' });
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (product.image) {
+      setActiveImage(product.image);
+    }
+  }, [product]);
+
+  const images = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image];
+
+  // Ensure main image is in the list if not already
+  if (product.image && !images.includes(product.image)) {
+      images.unshift(product.image);
+  }
+
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = e.target.getBoundingClientRect();
+    const x = ((e.pageX - left) / width) * 100;
+    const y = ((e.pageY - top) / height) * 100;
+    setZoomStyle({ transformOrigin: `${x}% ${y}%` });
+  };
+
+  return (
+    <div className="product-gallery">
+      <div 
+        className="main-image-container mb-3 p-3 bg-white rounded shadow-sm d-flex align-items-center justify-content-center position-relative overflow-hidden"
+        style={{ height: '500px', cursor: 'zoom-in' }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onMouseMove={handleMouseMove}
+      >
+        <img 
+          src={activeImage || product.image} 
+          alt={product.name} 
+          className="img-fluid"
+          style={{ 
+            maxHeight: '100%', 
+            objectFit: 'contain',
+            transform: isHovered ? 'scale(2)' : 'scale(1)',
+            transition: 'transform 0.1s ease-out',
+            ...zoomStyle
+          }} 
+        />
+      </div>
+      
+      {images.length > 1 && (
+        <div className="d-flex gap-2 overflow-auto py-2">
+          {images.map((img, index) => (
+            <div 
+              key={index}
+              className={`thumbnail-container rounded border p-1 ${activeImage === img ? 'border-primary' : 'border-light'}`}
+              style={{ width: '80px', height: '80px', cursor: 'pointer', minWidth: '80px' }}
+              onClick={() => setActiveImage(img)}
+              onMouseEnter={() => setActiveImage(img)}
+            >
+              <img 
+                src={img} 
+                alt={`Thumbnail ${index}`} 
+                className="w-100 h-100 object-fit-cover rounded" 
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

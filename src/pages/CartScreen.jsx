@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Row, Col, ListGroup, Image, Form, Button, Card, Alert, InputGroup } from 'react-bootstrap'
+import { Row, Col, ListGroup, Image, Form, Button, Card, Alert, InputGroup, Modal } from 'react-bootstrap'
 import { addToCart, removeFromCart, applyCoupon, removeCoupon, clearCart } from '../actions/cartActions'
 import notificationService from "../utils/notificationService";
+import { formatPrice, getCurrencySymbol } from '../utils/currencyUtils';
 
 const CartScreen = ({ match, location, history }) => {
     const productId = match.params.id
@@ -12,11 +13,17 @@ const CartScreen = ({ match, location, history }) => {
     const [couponCode, setCouponCode] = useState('')
     const [couponError, setCouponError] = useState('')
     const [couponSuccess, setCouponSuccess] = useState('')
+    
+    // Clear Cart Modal State
+    const [showClearCartModal, setShowClearCartModal] = useState(false);
 
     const dispatch = useDispatch()
 
     const cartItems = useSelector((state) => state.cart.cartItems) || []
     const coupon = useSelector((state) => state.cart.coupon)
+    const currencyState = useSelector((state) => state.currencyState);
+    const { currency } = currencyState;
+    const currencySymbol = getCurrencySymbol(currency);
 
     useEffect(() => {
         if (productId) {
@@ -29,11 +36,14 @@ const CartScreen = ({ match, location, history }) => {
         notificationService.info("Item removed from cart");
     }
 
+    const confirmClearCart = () => {
+        setShowClearCartModal(true);
+    }
+
     const clearCartHandler = () => {
-        if (window.confirm('Are you sure you want to clear your cart?')) {
-            dispatch(clearCart())
-            notificationService.info("Cart cleared");
-        }
+        dispatch(clearCart())
+        notificationService.info("Cart cleared");
+        setShowClearCartModal(false);
     }
 
     const checkoutHandler = () => {
@@ -94,7 +104,7 @@ const CartScreen = ({ match, location, history }) => {
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h1 className="fw-bold">Shopping Cart</h1>
                         {cartItems.length > 0 && (
-                            <Button variant="outline-danger" size="sm" onClick={clearCartHandler}>
+                            <Button variant="outline-danger" size="sm" onClick={confirmClearCart}>
                                 <i className="fas fa-trash me-2"></i> Clear Cart
                             </Button>
                         )}
@@ -120,7 +130,7 @@ const CartScreen = ({ match, location, history }) => {
                                                 </Link>
                                             </Col>
                                             <Col md={2} className="fw-bold text-muted">
-                                                ${item.price}
+                                                {currencySymbol}{formatPrice(item.price, currency)}
                                             </Col>
                                             <Col md={2}>
                                                 <Form.Control
@@ -165,7 +175,7 @@ const CartScreen = ({ match, location, history }) => {
                                 <ListGroup.Item className="px-0">
                                     <div className="d-flex justify-content-between">
                                         <span>Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)} items)</span>
-                                        <span className="fw-bold">${subtotal.toFixed(2)}</span>
+                                        <span className="fw-bold">{currencySymbol}{formatPrice(subtotal, currency)}</span>
                                     </div>
                                 </ListGroup.Item>
 
@@ -205,7 +215,7 @@ const CartScreen = ({ match, location, history }) => {
                                     <ListGroup.Item className="px-0">
                                         <div className="d-flex justify-content-between text-success">
                                             <span>Discount</span>
-                                            <span>-${discount.toFixed(2)}</span>
+                                            <span>-{currencySymbol}{formatPrice(discount, currency)}</span>
                                         </div>
                                     </ListGroup.Item>
                                 )}
@@ -214,7 +224,7 @@ const CartScreen = ({ match, location, history }) => {
                                 <ListGroup.Item className="px-0">
                                     <div className="d-flex justify-content-between fs-5 fw-bold">
                                         <span>Total</span>
-                                        <span>${total.toFixed(2)}</span>
+                                        <span>{currencySymbol}{formatPrice(total, currency)}</span>
                                     </div>
                                 </ListGroup.Item>
 
@@ -234,6 +244,24 @@ const CartScreen = ({ match, location, history }) => {
                     </Card>
                 </Col>
             </Row>
+
+            {/* Clear Cart Confirmation Modal */}
+            <Modal show={showClearCartModal} onHide={() => setShowClearCartModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Clear Cart</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to remove all items from your cart?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowClearCartModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={clearCartHandler}>
+                        Clear Cart
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }

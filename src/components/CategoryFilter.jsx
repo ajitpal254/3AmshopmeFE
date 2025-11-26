@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Badge } from 'react-bootstrap';
 import api from '../utils/api';
 import './CategoryFilter.css';
 
@@ -29,16 +28,13 @@ const CategoryFilter = ({ onSelectCategory }) => {
             <h5 className="category-filter-title">Shop by Category</h5>
             <div className="category-chips">
                 {categories.map((category) => (
-                    <Badge
+                    <button
                         key={category}
-                        pill
-                        bg={selectedCategory === category ? 'primary' : 'light'}
-                        text={selectedCategory === category ? 'white' : 'dark'}
                         className={`category-chip ${selectedCategory === category ? 'active' : ''}`}
                         onClick={() => handleCategoryClick(category)}
                     >
                         {category}
-                    </Badge>
+                    </button>
                 ))}
             </div>
         </div>

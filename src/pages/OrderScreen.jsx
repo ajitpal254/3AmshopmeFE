@@ -3,12 +3,14 @@ import { Row, Col, ListGroup, Image, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import { useSelector } from 'react-redux';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import LoadingSpinner from '../components/shared/LoadingSpinner';
 import notificationService from "../utils/notificationService";
 import StripePaymentForm from '../components/StripePaymentForm';
 import TrackOrder from '../components/TrackOrder';
+import { formatPrice, getCurrencySymbol } from '../utils/currencyUtils';
 
 const OrderScreen = ({ match, history }) => {
     const orderId = match.params.id;
@@ -19,6 +21,9 @@ const OrderScreen = ({ match, history }) => {
     const [stripePromise, setStripePromise] = useState(null);
 
     const { user: userInfo } = useAuth();
+    const currencyState = useSelector((state) => state.currencyState);
+    const { currency } = currencyState;
+    const currencySymbol = getCurrencySymbol(currency);
 
     useEffect(() => {
         if (!userInfo) {
@@ -133,7 +138,7 @@ const OrderScreen = ({ match, history }) => {
                                                     </Link>
                                                 </Col>
                                                 <Col md={4}>
-                                                    {item.qty} x ${item.price} = ${(item.qty * item.price).toFixed(2)}
+                                                    {item.qty} x {currencySymbol}{formatPrice(item.price, currency)} = {currencySymbol}{formatPrice(item.qty * item.price, currency)}
                                                 </Col>
                                             </Row>
                                         </ListGroup.Item>
@@ -152,25 +157,25 @@ const OrderScreen = ({ match, history }) => {
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Items</Col>
-                                    <Col>${order.itemsPrice?.toFixed(2)}</Col>
+                                    <Col>{currencySymbol}{formatPrice(order.itemsPrice, currency)}</Col>
                                 </Row>
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Shipping</Col>
-                                    <Col>${order.shippingPrice?.toFixed(2)}</Col>
+                                    <Col>{currencySymbol}{formatPrice(order.shippingPrice, currency)}</Col>
                                 </Row>
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Tax</Col>
-                                    <Col>${order.taxPrice?.toFixed(2)}</Col>
+                                    <Col>{currencySymbol}{formatPrice(order.taxPrice, currency)}</Col>
                                 </Row>
                             </ListGroup.Item>
                             <ListGroup.Item>
                                 <Row>
                                     <Col>Total</Col>
-                                    <Col>${order.totalPrice?.toFixed(2)}</Col>
+                                    <Col>{currencySymbol}{formatPrice(order.totalPrice, currency)}</Col>
                                 </Row>
                             </ListGroup.Item>
                             {!order.isPaid && (
@@ -186,6 +191,17 @@ const OrderScreen = ({ match, history }) => {
                                     ) : (
                                         <LoadingSpinner message="Loading payment system..." />
                                     )}
+                                </ListGroup.Item>
+                            )}
+                            {order.isPaid && (
+                                <ListGroup.Item>
+                                    <button
+                                        className="btn btn-dark w-100"
+                                        onClick={() => window.print()}
+                                    >
+                                        <i className="fas fa-print me-2"></i>
+                                        Download Receipt
+                                    </button>
                                 </ListGroup.Item>
                             )}
                         </ListGroup>

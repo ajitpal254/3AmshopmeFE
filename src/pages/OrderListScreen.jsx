@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Button, Badge, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
@@ -9,13 +9,11 @@ const OrderListScreen = ({ history }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
     const { user, vendor } = useAuth();
 
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
             let endpoint;
@@ -34,7 +32,11 @@ const OrderListScreen = ({ history }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [vendor, user]);
+
+    useEffect(() => {
+        fetchOrders();
+    }, [fetchOrders]);
 
     const handlePaymentStatusChange = async (orderId, currentStatus) => {
         try {
@@ -62,6 +64,19 @@ const OrderListScreen = ({ history }) => {
         }
     };
 
+    const filteredOrders = orders.filter(order => {
+        const matchesSearch = order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (order.User && order.User.name && order.User.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        const matchesStatus = statusFilter === 'All' ? true :
+                              statusFilter === 'Paid' ? order.isPaid :
+                              statusFilter === 'Unpaid' ? !order.isPaid :
+                              statusFilter === 'Delivered' ? (order.isDelivered || order.isDelieved) :
+                              statusFilter === 'Processing' ? !(order.isDelivered || order.isDelieved) : true;
+        
+        return matchesSearch && matchesStatus;
+    });
+
     if (loading) {
         return <LoadingSpinner message="Loading orders..." />;
     }
@@ -75,9 +90,35 @@ const OrderListScreen = ({ history }) => {
             {error && <div className="alert alert-danger alert-dismissible fade show">{error}</div>}
             {success && <div className="alert alert-success alert-dismissible fade show">{success}</div>}
 
-            {orders.length === 0 ? (
+            <div className="row mb-4">
+                <div className="col-md-6">
+                    <Form.Group>
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Order ID or User Name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </Form.Group>
+                </div>
+                <div className="col-md-6">
+                    <Form.Control
+                        as="select"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        <option value="All">All Statuses</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Processing">Processing</option>
+                    </Form.Control>
+                </div>
+            </div>
+
+            {filteredOrders.length === 0 ? (
                 <div className="alert alert-info">
-                    No orders found.
+                    No orders found matching your criteria.
                 </div>
             ) : (
                 <Table striped bordered hover responsive className="table-sm">
@@ -94,7 +135,7 @@ const OrderListScreen = ({ history }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map((order) => (
+                        {filteredOrders.map((order) => (
                             <tr key={order._id}>
                                 <td>
                                     <small>{order._id.substring(0, 10)}...</small>

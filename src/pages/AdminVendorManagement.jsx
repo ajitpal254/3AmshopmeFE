@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { Modal, Button, Form } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import api from '../utils/api';
 import '../components/css/AdminVendorManagement.css';
 
@@ -9,7 +11,18 @@ const AdminVendorManagement = () => {
     const [filter, setFilter] = useState('pending');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
+    // Modal States
     const [selectedVendor, setSelectedVendor] = useState(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [modalConfig, setModalConfig] = useState({
+        title: '',
+        message: '',
+        action: null,
+        variant: 'primary'
+    });
+    
     const [rejectionReason, setRejectionReason] = useState('');
     const history = useHistory();
 
@@ -45,76 +58,110 @@ const AdminVendorManagement = () => {
             console.error('Error fetching vendors:', err);
             if (err.response?.status === 403 || err.response?.status === 401) {
                 setError('You do not have admin access.');
+                toast.error('You do not have admin access.');
                 setTimeout(() => history.push('/'), 2000);
             } else {
                 setError('Failed to load vendors');
+                toast.error('Failed to load vendors');
             }
         } finally {
             setLoading(false);
         }
     };
 
-    const handleApprove = async (vendorId) => {
-        if (!window.confirm('Are you sure you want to approve this vendor?')) return;
-
-        try {
-            const token = localStorage.getItem('token');
-            await api.put(`/api/admin/vendors/${vendorId}/approve`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            alert('Vendor approved successfully!');
-            fetchVendors();
-            fetchStats();
-            setSelectedVendor(null);
-        } catch (err) {
-            console.error('Error approving vendor:', err);
-            alert('Failed to approve vendor');
-        }
+    const openConfirmModal = (title, message, action, variant = 'primary') => {
+        setModalConfig({ title, message, action, variant });
+        setShowConfirmModal(true);
     };
 
-    const handleReject = async (vendorId) => {
+    const handleConfirmAction = async () => {
+        if (modalConfig.action) {
+            await modalConfig.action();
+        }
+        setShowConfirmModal(false);
+    };
+
+    const handleApprove = (vendorId) => {
+        openConfirmModal(
+            'Approve Vendor',
+            'Are you sure you want to approve this vendor?',
+            async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    await api.put(`/api/admin/vendors/${vendorId}/approve`, {}, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    toast.success('Vendor approved successfully!');
+                    fetchVendors();
+                    fetchStats();
+                    setShowDetailsModal(false);
+                } catch (err) {
+                    console.error('Error approving vendor:', err);
+                    toast.error('Failed to approve vendor');
+                }
+            },
+            'success'
+        );
+    };
+
+    const handleReject = (vendorId) => {
         if (!rejectionReason.trim()) {
-            alert('Please provide a reason for rejection');
+            toast.warning('Please provide a reason for rejection');
             return;
         }
 
-        if (!window.confirm('Are you sure you want to reject this vendor?')) return;
+        openConfirmModal(
+            'Reject Vendor',
+            'Are you sure you want to reject this vendor?',
+            async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    await api.put(`/api/admin/vendors/${vendorId}/reject`,
+                        { reason: rejectionReason },
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
 
-        try {
-            const token = localStorage.getItem('token');
-            await api.put(`/api/admin/vendors/${vendorId}/reject`,
-                { reason: rejectionReason },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            alert('Vendor rejected');
-            fetchVendors();
-            fetchStats();
-            setSelectedVendor(null);
-            setRejectionReason('');
-        } catch (err) {
-            console.error('Error rejecting vendor:', err);
-            alert('Failed to reject vendor');
-        }
+                    toast.info('Vendor rejected');
+                    fetchVendors();
+                    fetchStats();
+                    setShowDetailsModal(false);
+                    setRejectionReason('');
+                } catch (err) {
+                    console.error('Error rejecting vendor:', err);
+                    toast.error('Failed to reject vendor');
+                }
+            },
+            'danger'
+        );
     };
 
-    const handleDelete = async (vendorId) => {
-        if (!window.confirm('Are you sure you want to permanently delete this vendor? This action cannot be undone.')) return;
+    const handleDelete = (vendorId) => {
+        openConfirmModal(
+            'Delete Vendor',
+            'Are you sure you want to permanently delete this vendor? This action cannot be undone.',
+            async () => {
+                try {
+                    const token = localStorage.getItem('token');
+                    await api.delete(`/api/admin/vendors/${vendorId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
 
-        try {
-            const token = localStorage.getItem('token');
-            await api.delete(`/api/admin/vendors/${vendorId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+                    toast.success('Vendor deleted successfully');
+                    fetchVendors();
+                    fetchStats();
+                } catch (err) {
+                    console.error('Error deleting vendor:', err);
+                    toast.error('Failed to delete vendor');
+                }
+            },
+            'danger'
+        );
+    };
 
-            alert('Vendor deleted successfully');
-            fetchVendors();
-            fetchStats();
-        } catch (err) {
-            console.error('Error deleting vendor:', err);
-            alert('Failed to delete vendor');
-        }
+    const openDetails = (vendor) => {
+        setSelectedVendor(vendor);
+        setShowDetailsModal(true);
     };
 
     const getStatusBadge = (status) => {
@@ -245,7 +292,10 @@ const AdminVendorManagement = () => {
                                                     </button>
                                                     <button
                                                         className="btn-reject"
-                                                        onClick={() => setSelectedVendor(vendor)}
+                                                        onClick={() => {
+                                                            setSelectedVendor(vendor);
+                                                            setShowDetailsModal(true);
+                                                        }}
                                                     >
                                                         ❌ Reject
                                                     </button>
@@ -253,7 +303,7 @@ const AdminVendorManagement = () => {
                                             )}
                                             <button
                                                 className="btn-details"
-                                                onClick={() => setSelectedVendor(vendor)}
+                                                onClick={() => openDetails(vendor)}
                                             >
                                                 👁️ Details
                                             </button>
@@ -272,91 +322,109 @@ const AdminVendorManagement = () => {
                 </div>
             )}
 
-            {/* Vendor Details Modal */}
-            {selectedVendor && (
-                <div className="modal-overlay" onClick={() => setSelectedVendor(null)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2>Vendor Details</h2>
-                            <button className="close-btn" onClick={() => setSelectedVendor(null)}>×</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="detail-row">
-                                <strong>Name:</strong>
-                                <span>{selectedVendor.name}</span>
+            {/* Vendor Details Modal (Bootstrap) */}
+            <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size="lg" centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Vendor Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedVendor && (
+                        <div className="vendor-details-content">
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Name:</div>
+                                <div className="col-md-8">{selectedVendor.name}</div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Email:</strong>
-                                <span>{selectedVendor.email}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Email:</div>
+                                <div className="col-md-8">{selectedVendor.email}</div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Business Category:</strong>
-                                <span>{selectedVendor.businessCategory}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Business Category:</div>
+                                <div className="col-md-8">{selectedVendor.businessCategory}</div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Niche:</strong>
-                                <span>{selectedVendor.niche || 'Not specified'}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Niche:</div>
+                                <div className="col-md-8">{selectedVendor.niche || 'Not specified'}</div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Phone:</strong>
-                                <span>{selectedVendor.phone || 'Not provided'}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Phone:</div>
+                                <div className="col-md-8">{selectedVendor.phone || 'Not provided'}</div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Website:</strong>
-                                <span>{selectedVendor.website || 'Not provided'}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Website:</div>
+                                <div className="col-md-8">{selectedVendor.website || 'Not provided'}</div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Status:</strong>
-                                <span className={`badge ${getStatusBadge(selectedVendor.approvalStatus)}`}>
-                                    {selectedVendor.approvalStatus}
-                                </span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Status:</div>
+                                <div className="col-md-8">
+                                    <span className={`badge ${getStatusBadge(selectedVendor.approvalStatus)}`}>
+                                        {selectedVendor.approvalStatus}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="detail-row">
-                                <strong>Email Verified:</strong>
-                                <span>{selectedVendor.isVerified ? '✅ Yes' : '❌ No'}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Email Verified:</div>
+                                <div className="col-md-8">{selectedVendor.isVerified ? '✅ Yes' : '❌ No'}</div>
                             </div>
                             {selectedVendor.rejectionReason && (
-                                <div className="detail-row">
-                                    <strong>Rejection Reason:</strong>
-                                    <span className="rejection-reason">{selectedVendor.rejectionReason}</span>
+                                <div className="row mb-2">
+                                    <div className="col-md-4 fw-bold">Rejection Reason:</div>
+                                    <div className="col-md-8 text-danger">{selectedVendor.rejectionReason}</div>
                                 </div>
                             )}
-                            <div className="detail-row">
-                                <strong>Created At:</strong>
-                                <span>{new Date(selectedVendor.createdAt).toLocaleString()}</span>
+                            <div className="row mb-2">
+                                <div className="col-md-4 fw-bold">Created At:</div>
+                                <div className="col-md-8">{new Date(selectedVendor.createdAt).toLocaleString()}</div>
                             </div>
 
                             {selectedVendor.approvalStatus === 'pending' && (
-                                <div className="modal-actions">
-                                    <hr />
-                                    <h3>Rejection Reason (if rejecting)</h3>
-                                    <textarea
-                                        placeholder="Enter reason for rejection..."
-                                        value={rejectionReason}
-                                        onChange={(e) => setRejectionReason(e.target.value)}
-                                        rows="3"
-                                        className="form-control mb-3"
-                                    />
-                                    <div className="button-group">
-                                        <button
-                                            className="btn-approve btn-lg"
-                                            onClick={() => handleApprove(selectedVendor._id)}
-                                        >
+                                <div className="mt-4 pt-3 border-top">
+                                    <h5>Review Application</h5>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Rejection Reason (if rejecting)</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Enter reason for rejection..."
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                    <div className="d-flex gap-2">
+                                        <Button variant="success" onClick={() => handleApprove(selectedVendor._id)}>
                                             ✅ Approve Vendor
-                                        </button>
-                                        <button
-                                            className="btn-reject btn-lg"
-                                            onClick={() => handleReject(selectedVendor._id)}
-                                        >
+                                        </Button>
+                                        <Button variant="danger" onClick={() => handleReject(selectedVendor._id)}>
                                             ❌ Reject Vendor
-                                        </button>
+                                        </Button>
                                     </div>
                                 </div>
                             )}
                         </div>
-                    </div>
-                </div>
-            )}
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Confirmation Modal */}
+            <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>{modalConfig.title}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>{modalConfig.message}</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant={modalConfig.variant} onClick={handleConfirmAction}>
+                        Confirm
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

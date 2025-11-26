@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Table, Button, Modal, Form, Alert, Badge, Card, Row, Col } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
@@ -9,8 +10,11 @@ const VendorDashboard = () => {
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const { user, vendor } = useAuth();
+
+    // Delete Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [couponToDelete, setCouponToDelete] = useState(null);
 
     const [couponForm, setCouponForm] = useState({
         code: '',
@@ -36,6 +40,7 @@ const VendorDashboard = () => {
             setCoupons(data);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to fetch coupons');
+            toast.error('Failed to fetch coupons');
         } finally {
             setLoading(false);
         }
@@ -51,10 +56,9 @@ const VendorDashboard = () => {
     const handleCreateCoupon = async (e) => {
         e.preventDefault();
         setError('');
-        setSuccess('');
 
         if (!couponForm.code || !couponForm.discountValue) {
-            setError('Please fill in required fields');
+            toast.error('Please fill in required fields');
             return;
         }
 
@@ -72,7 +76,7 @@ const VendorDashboard = () => {
 
             const endpoint = vendor ? '/api/discount/vendor/create' : '/api/discount/create';
             await api.post(endpoint, payload);
-            setSuccess('Coupon created successfully!');
+            toast.success('Coupon created successfully!');
             setShowCouponModal(false);
             fetchCoupons();
 
@@ -86,20 +90,26 @@ const VendorDashboard = () => {
                 endDate: ''
             });
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create coupon');
+            toast.error(err.response?.data?.message || 'Failed to create coupon');
         }
     };
 
-    const handleDeleteCoupon = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this coupon?')) return;
+    const confirmDelete = (id) => {
+        setCouponToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const handleDeleteCoupon = async () => {
+        if (!couponToDelete) return;
 
         try {
-            const endpoint = vendor ? `/api/discount/vendor/${id}` : `/api/discount/${id}`;
+            const endpoint = vendor ? `/api/discount/vendor/${couponToDelete}` : `/api/discount/${couponToDelete}`;
             await api.delete(endpoint);
-            setSuccess('Coupon deleted successfully');
+            toast.success('Coupon deleted successfully');
             fetchCoupons();
+            setShowDeleteModal(false);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to delete coupon');
+            toast.error(err.response?.data?.message || 'Failed to delete coupon');
         }
     };
 
@@ -123,9 +133,6 @@ const VendorDashboard = () => {
                                 Create Coupon
                             </Button>
                         </div>
-
-                        {error && <Alert variant="danger" dismissible onClose={() => setError('')}>{error}</Alert>}
-                        {success && <Alert variant="success" dismissible onClose={() => setSuccess('')}>{success}</Alert>}
 
                         {loading ? (
                             <div className="text-center my-5">
@@ -213,7 +220,7 @@ const VendorDashboard = () => {
                                                 </td>
                                                 <td>{new Date(coupon.createdAt).toLocaleDateString()}</td>
                                                 <td>
-                                                    <Button variant="danger" size="sm" onClick={() => handleDeleteCoupon(coupon._id)}>
+                                                    <Button variant="danger" size="sm" onClick={() => confirmDelete(coupon._id)}>
                                                         <i className="fas fa-trash"></i>
                                                     </Button>
                                                 </td>
@@ -356,6 +363,24 @@ const VendorDashboard = () => {
                                     </Button>
                                 </Modal.Footer>
                             </Form>
+                        </Modal>
+
+                        {/* Delete Confirmation Modal */}
+                        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Confirm Delete</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                Are you sure you want to delete this coupon? This action cannot be undone.
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                                    Cancel
+                                </Button>
+                                <Button variant="danger" onClick={handleDeleteCoupon}>
+                                    Delete
+                                </Button>
+                            </Modal.Footer>
                         </Modal>
                     </div>
                 </Tab>
