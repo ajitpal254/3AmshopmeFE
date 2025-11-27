@@ -16,8 +16,7 @@ const PlaceOrderScreen = () => {
     const [error, setError] = useState('');
     const [orderPlaced, setOrderPlaced] = useState(false);
 
-    // Payment State
-    const [paymentMethod, setPaymentMethod] = useState('Stripe');
+
 
     useEffect(() => {
         if (!shippingAddress.address && !orderPlaced) {

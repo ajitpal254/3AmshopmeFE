@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
@@ -26,11 +26,6 @@ const AdminVendorManagement = () => {
     const [rejectionReason, setRejectionReason] = useState('');
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchStats();
-        fetchVendors();
-    }, [filter]);
-
     const fetchStats = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -43,7 +38,7 @@ const AdminVendorManagement = () => {
         }
     };
 
-    const fetchVendors = async () => {
+    const fetchVendors = useCallback(async () => {
         try {
             setLoading(true);
             setError('');
@@ -67,7 +62,12 @@ const AdminVendorManagement = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filter, navigate]);
+
+    useEffect(() => {
+        fetchStats();
+        fetchVendors();
+    }, [fetchVendors]);
 
     const openConfirmModal = (title, message, action, variant = 'primary') => {
         setModalConfig({ title, message, action, variant });

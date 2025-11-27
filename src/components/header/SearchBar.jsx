@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, FormControl, Button } from "react-bootstrap";
+import { Form, FormControl } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 const SearchBar = ({ className, onSearch }) => {

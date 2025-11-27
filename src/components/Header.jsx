@@ -49,10 +49,10 @@ const Header = () => {
           </div>
 
           {/* Mobile Cart & Menu Toggle */}
-          <div className="d-lg-none d-flex align-items-center gap-2">
+          <div className="d-lg-none d-flex align-items-center gap-3">
             <LinkContainer to="/cart">
-              <Nav.Link className="position-relative p-2">
-                <i className="fas fa-shopping-cart" style={{ fontSize: '1.3rem', color: '#4a5568' }}></i>
+              <Nav.Link className="position-relative">
+                <i className="fas fa-shopping-cart"></i>
                 {cartItems.length > 0 && (
                   <Badge pill bg="danger" className="cart-badge">
                     {cartItems.reduce((acc, item) => acc + item.qty, 0)}
