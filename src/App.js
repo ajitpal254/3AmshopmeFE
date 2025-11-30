@@ -26,6 +26,7 @@ import OrdersScreen from "./pages/OrdersScreen";
 import ProductListScreen from "./pages/ProductListScreen";
 import OrderListScreen from "./pages/OrderListScreen";
 import UserProfile from "./pages/UserProfile";
+import ProductEditScreen from "./pages/ProductEditScreen";
 import AdminVendorManagement from "./pages/AdminVendorManagement";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
@@ -104,6 +105,7 @@ function App() {
                   <Route path="/wishlist" element={<WishlistScreen />} />
                   <Route path="/admin/productlist" element={<ProductListScreen />} />
                   <Route path="/vendor/products" element={<ProductListScreen />} />
+                  <Route path="/product/edit/:id" element={<ProductEditScreen />} />
                   <Route path="/admin/orderlist" element={<OrderListScreen />} />
                   <Route path="/admin/vendors" element={<AdminVendorManagement />} />
                   <Route path="/admin/reviews" element={<ReviewModeration />} />
