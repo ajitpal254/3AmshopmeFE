@@ -64,7 +64,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && !cartFetched.current) {
-      console.log('Fetching cart on mount...');
+
       cartFetched.current = true;
       dispatch(getCart());
     }

@@ -18,7 +18,7 @@ const ContactUs = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         // In a real app, you would send this to your backend
-        console.log('Contact Form Data:', formData);
+
         notificationService.success('Message sent successfully! We will get back to you soon.');
         setFormData({ name: '', email: '', subject: '', message: '' });
     };

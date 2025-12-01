@@ -24,7 +24,7 @@ const EmailVerification = () => {
             return; // Exit if successful
         } catch (userError) {
             // If user verification fails, try verifying as a vendor
-            console.log("User verification failed, trying vendor verification...");
+
             const response = await api.get(`/vendor/verify/${token}`);
             if (response.data.msg || response.data.message) {
                 setStatus("success");

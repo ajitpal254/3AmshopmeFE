@@ -49,7 +49,7 @@ export const uploadImageToFirebase = (file, folder = 'images', onProgress = null
                 if (onProgress) {
                     onProgress(Math.round(progress));
                 }
-                console.log(`Upload is ${progress}% done`);
+
             },
             (error) => {
                 // Error handling
@@ -60,7 +60,7 @@ export const uploadImageToFirebase = (file, folder = 'images', onProgress = null
                 // Upload completed successfully
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    console.log('File available at:', downloadURL);
+
                     resolve(downloadURL);
                 } catch (error) {
                     reject(error);
@@ -110,7 +110,7 @@ export const deleteImageFromFirebase = async (imageUrl) => {
 
         const imageRef = ref(storage, imagePath);
         await deleteObject(imageRef);
-        console.log('Image deleted successfully');
+
     } catch (error) {
         console.error('Error deleting image:', error);
         throw error;

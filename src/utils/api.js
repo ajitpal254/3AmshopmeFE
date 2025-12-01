@@ -17,10 +17,7 @@ const getBaseUrl = () => {
 
     // Log the configuration in development
     if (nodeEnv === 'development') {
-        console.log('%c API Configuration ', 'background: #0066cc; color: white; font-weight: bold; padding: 4px;');
-        console.log('BASE_URL:', baseUrl);
-        console.log('NODE_ENV:', nodeEnv);
-        console.log('REACT_APP_ENV:', customEnv);
+
     }
 
     return baseUrl;

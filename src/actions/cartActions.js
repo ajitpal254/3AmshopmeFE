@@ -40,7 +40,7 @@ export const getCart = () => async (dispatch) => {
 }
 
 export const addToCart = (id, qty) => async (dispatch, getState) => {
-    console.log('ACTION: addToCart', id, qty);
+
     const { data } = await api.get(`/products/${id}`)
 
     // Check if item exists to handle DB sync
@@ -55,12 +55,12 @@ export const addToCart = (id, qty) => async (dispatch, getState) => {
         try {
             // If exists, delete old entry first (since backend only supports add/delete)
             if (existingItem && existingItem.cartId) {
-                console.log('ACTION: Deleting existing DB item', existingItem.cartId);
+
                 await api.delete(`/cart/${existingItem.cartId}`)
             }
 
             // Add new entry
-            console.log('ACTION: Adding new DB item');
+
             const res = await api.post('/addCart', {
                 id: data._id,
                 name: data.name,
@@ -69,7 +69,7 @@ export const addToCart = (id, qty) => async (dispatch, getState) => {
                 quantity: qty
             })
             newCartId = res.data._id
-            console.log('ACTION: New DB item created', newCartId);
+
         } catch (error) {
             console.error('Failed to sync add to cart', error)
         }
@@ -90,20 +90,20 @@ export const addToCart = (id, qty) => async (dispatch, getState) => {
 }
 
 export const removeFromCart = (id) => async (dispatch, getState) => {
-    console.log('ACTION: removeFromCart', id);
+
     // Sync with DB if user is logged in
     const { cart: { cartItems } } = getState()
     const item = cartItems.find(x => x.product && id && x.product.toString() === id.toString())
 
     if (item && item.cartId) {
-        console.log('ACTION: Deleting DB item', item.cartId);
+
         try {
             await api.delete(`/cart/${item.cartId}`)
         } catch (error) {
             console.error('Failed to delete from DB', error)
         }
     } else {
-        console.log('ACTION: Item not found or no cartId', item);
+
     }
 
     dispatch({
