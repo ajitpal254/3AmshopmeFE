@@ -18,7 +18,7 @@ const EmailVerification = () => {
       try {
         // Try verifying as a regular user first
         try {
-            const response = await api.get(`/app/verify/${token}`);
+            await api.get(`/app/verify/${token}`);
             setStatus("success");
             setMessage("🎉 Your user account has been successfully verified! You may now log in.");
             return; // Exit if successful
