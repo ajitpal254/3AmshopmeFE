@@ -19,11 +19,11 @@ export const AuthProvider = ({ children }) => {
             const vendorToken = localStorage.getItem('vendorToken');
             const vendorInfo = localStorage.getItem('vendorInfo');
 
-            if (userToken && userInfo) {
-                setUser(JSON.parse(userInfo));
-
-                // Fetch fresh user data from backend to get latest profile picture
+            if (userToken && userInfo && userInfo !== "undefined") {
                 try {
+                    setUser(JSON.parse(userInfo));
+
+                    // Fetch fresh user data from backend to get latest profile picture
                     const { data } = await api.get('/api/profile', {
                         headers: { Authorization: `Bearer ${userToken}` }
                     });
@@ -40,12 +40,23 @@ export const AuthProvider = ({ children }) => {
                     setUser(freshUser);
                     localStorage.setItem('userInfo', JSON.stringify(freshUser));
                 } catch (error) {
-                    console.error('Failed to fetch user profile:', error);
+                    console.error('Failed to parse user info or fetch profile:', error);
+                    // If parsing fails, clear invalid data
+                    if (error instanceof SyntaxError) {
+                        localStorage.removeItem('userInfo');
+                        localStorage.removeItem('token');
+                    }
                 }
             }
 
-            if (vendorToken && vendorInfo) {
-                setVendor(JSON.parse(vendorInfo));
+            if (vendorToken && vendorInfo && vendorInfo !== "undefined") {
+                try {
+                    setVendor(JSON.parse(vendorInfo));
+                } catch (error) {
+                    console.error('Failed to parse vendor info:', error);
+                    localStorage.removeItem('vendorInfo');
+                    localStorage.removeItem('vendorToken');
+                }
             }
 
             setLoading(false);

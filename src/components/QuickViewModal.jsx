@@ -60,7 +60,7 @@ const QuickViewModal = ({ show, onHide, product }) => {
     };
 
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered className="quick-view-modal">
+        <Modal show={show} onHide={onHide} size="lg" centered scrollable className="quick-view-modal">
             <Modal.Header closeButton>
                 <Modal.Title>Quick View</Modal.Title>
             </Modal.Header>

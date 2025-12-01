@@ -23,6 +23,7 @@ A modern, full-featured e-commerce frontend application built with React.js. Thi
 AmShoppee is a responsive e-commerce frontend application that provides a seamless shopping experience for users. Built with React.js and modern web technologies, it integrates with a RESTful backend API to deliver a full-featured online store.
 
 The application supports multiple user roles:
+
 - **Customers**: Browse products, manage cart, place orders, and track order history
 - **Vendors**: Manage their product listings and inventory through a dedicated dashboard
 - **Admins**: Full administrative access to manage products, users, and orders
@@ -32,6 +33,7 @@ The application supports multiple user roles:
 This project is built using the following technologies:
 
 ### Core Technologies
+
 - **React.js** (v17.0.2) - Frontend framework for building user interfaces
 - **React Router DOM** (v5.2.0) - Client-side routing and navigation
 - **Redux** (v4.0.5) - Global state management
@@ -39,21 +41,25 @@ This project is built using the following technologies:
 - **Context API** - Local state management for authentication and cart
 
 ### HTTP & API
+
 - **Axios** (v1.9.0) - HTTP client for API requests
 - **Apollo Client** (v3.3.13) - GraphQL client (optional integration)
 
 ### UI & Styling
+
 - **React Bootstrap** (v1.5.2) - UI component library
 - **Bootstrap** (v5.2.3) - CSS framework for responsive design
 - **Custom CSS** - Additional styling and themes
 
 ### Authentication & Cloud Services
+
 - **Firebase** (v11.7.1) - Authentication and cloud storage
 - **JWT Decode** (v3.1.2) - JWT token parsing
 - **React Google Login** (v5.2.2) - Google OAuth integration
 - **Cloudinary React** (v1.8.1) - Image upload and management
 
 ### Development Tools
+
 - **React Scripts** (v5.0.1) - Build tooling
 - **Redux DevTools Extension** - State debugging
 - **Jest & React Testing Library** - Testing framework
@@ -61,6 +67,7 @@ This project is built using the following technologies:
 ## ✨ Features
 
 ### Customer Features
+
 - **Responsive Design**: Mobile-first, responsive layout that works on all devices
 - **Product Browsing**:
   - Browse products by categories
@@ -88,18 +95,21 @@ This project is built using the following technologies:
   - Order details and receipts
 
 ### Vendor Features
+
 - **Vendor Dashboard**: Dedicated interface for vendors
 - **Product Management**: Add, edit, and delete products
 - **Inventory Management**: Track product stock levels
 - **Order Management**: View and manage vendor-specific orders
 
 ### Admin Features
+
 - **Admin Dashboard**: Complete administrative control
 - **User Management**: Manage customer and vendor accounts
 - **Product Administration**: Full product CRUD operations
 - **Order Overview**: Monitor all orders across the platform
 
 ### Technical Features
+
 - **Backend API Integration**: RESTful API integration
 - **State Management**: Redux store with persistent storage
 - **Image Uploads**: Cloudinary integration for product and profile images
@@ -116,6 +126,7 @@ Before you begin, ensure you have the following installed:
 - **Git**: For cloning the repository
 
 You'll also need:
+
 - A running backend API server (see [API Integration](#api-integration))
 - Cloudinary account credentials (for image uploads)
 - Firebase project credentials (for authentication)
@@ -123,33 +134,39 @@ You'll also need:
 ## 🚀 Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/ajitpal254/3AmshopmeFE.git
    cd 3AmshopmeFE
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
-3. **Configure environment variables** (see [Configuration](#configuration) section below)
+3. **Configure environment variables**
+
+   Create a `.env` file in the root directory. You will need to configure the following variables:
+
+   - `REACT_APP_API_URL`: The base URL of your backend API server (development)
+   - `REACT_APP_API_URL_PROD`: The production API URL
+   - `REACT_APP_CLOUDINARY_CLOUD_NAME`: Cloudinary cloud name
+   - `REACT_APP_CLOUDINARY_UPLOAD_PRESET`: Cloudinary upload preset
+   - `REACT_APP_FIREBASE_API_KEY`: Firebase API Key
+   - `REACT_APP_FIREBASE_AUTH_DOMAIN`: Firebase Auth Domain
+   - `REACT_APP_FIREBASE_PROJECT_ID`: Firebase Project ID
+   - `REACT_APP_FIREBASE_STORAGE_BUCKET`: Firebase Storage Bucket
+   - `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`: Firebase Messaging Sender ID
+   - `REACT_APP_FIREBASE_APP_ID`: Firebase App ID
+
+   **Note:** Never commit your `.env` file to version control.
 
 4. **Start the development server**:
    ```bash
    npm start
    ```
-
-### Configuration Details:
-
-- **REACT_APP_API_URL**: The base URL of your backend API server (development)
-- **REACT_APP_API_URL_PROD**: The production API URL
-- **Cloudinary Credentials**: Required for image upload functionality
-  - Sign up at [Cloudinary](https://cloudinary.com/)
-  - Create an upload preset in your dashboard
-- **Firebase Credentials**: Required for authentication features
-  - Create a project at [Firebase Console](https://console.firebase.google.com/)
-  - Enable authentication methods you want to use
 
 ## 🏃 Running the Application
 
@@ -276,12 +293,14 @@ This frontend application requires a backend API server to function. The API is 
 The backend should provide the following endpoints:
 
 #### Authentication
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `POST /api/auth/verify-email` - Email verification
 - `POST /api/auth/google` - Google OAuth
 
 #### Products
+
 - `GET /api/products` - Get all products
 - `GET /api/products/:id` - Get single product
 - `GET /api/products/search` - Search products
@@ -290,18 +309,21 @@ The backend should provide the following endpoints:
 - `DELETE /api/products/:id` - Delete product (vendor/admin)
 
 #### Cart
+
 - `GET /api/cart` - Get user's cart
 - `POST /api/cart` - Add item to cart
 - `PUT /api/cart/:id` - Update cart item
 - `DELETE /api/cart/:id` - Remove item from cart
 
 #### Orders
+
 - `GET /api/orders` - Get user's orders
 - `GET /api/orders/:id` - Get single order
 - `POST /api/orders` - Create new order
 - `PUT /api/orders/:id` - Update order status (admin)
 
 #### User Profile
+
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update user profile
 - `POST /api/users/upload-avatar` - Upload profile picture
@@ -316,6 +338,7 @@ The backend should provide the following endpoints:
 ### API Request Configuration
 
 The API client is configured with:
+
 - **Base URL**: From `REACT_APP_API_URL` environment variable
 - **Default timeout**: 10 seconds
 - **Authentication**: JWT token in Authorization header
@@ -325,17 +348,17 @@ Example API usage in the application:
 
 ```javascript
 // From src/utils/api.js
-import api from '../utils/api';
+import api from "../utils/api";
 
 // Making an authenticated request
 const fetchProducts = async () => {
-  const { data } = await api.get('/products');
+  const { data } = await api.get("/products");
   return data;
 };
 
 // POST request with data
 const createOrder = async (orderData) => {
-  const { data } = await api.post('/orders', orderData);
+  const { data } = await api.post("/orders", orderData);
   return data;
 };
 ```
@@ -345,21 +368,25 @@ const createOrder = async (orderData) => {
 ### For Customers
 
 1. **Register/Login**:
+
    - Click "Sign Up" to create an account
    - Or use "Login" if you already have an account
    - Google Sign-In is also available
 
 2. **Browse Products**:
+
    - View products on the home page
    - Use search to find specific products
    - Click on a product to view details
 
 3. **Add to Cart**:
+
    - On product details page, select quantity
    - Click "Add to Cart"
    - Cart icon shows item count
 
 4. **Checkout**:
+
    - Click cart icon to view cart
    - Review items and quantities
    - Click "Proceed to Checkout"
@@ -373,6 +400,7 @@ const createOrder = async (orderData) => {
 ### For Vendors
 
 1. **Vendor Registration**:
+
    - Navigate to vendor registration page
    - Complete the vendor profile
    - Wait for admin approval (if required)
@@ -386,6 +414,7 @@ const createOrder = async (orderData) => {
 ### For Admins
 
 1. **Access Admin Panel**:
+
    - Login with admin credentials
    - Navigate to admin dashboard
 
@@ -402,34 +431,40 @@ We welcome contributions to improve AmShoppee! Here's how you can contribute:
 ### Getting Started
 
 1. **Fork the repository**:
+
    ```bash
    # Click the "Fork" button on GitHub
    ```
 
 2. **Clone your fork**:
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/3AmshopmeFE.git
    cd 3AmshopmeFE
    ```
 
 3. **Create a feature branch**:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 4. **Make your changes**:
+
    - Write clean, maintainable code
    - Follow the existing code style
    - Add comments for complex logic
    - Test your changes thoroughly
 
 5. **Commit your changes**:
+
    ```bash
    git add .
    git commit -m "Add: Brief description of your changes"
    ```
 
 6. **Push to your fork**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -478,6 +513,7 @@ This project is currently not licensed. Please contact the repository owner for 
 ## 📞 Support
 
 For questions or support:
+
 - Open an issue on GitHub
 - Contact the maintainers
 

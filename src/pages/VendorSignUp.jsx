@@ -4,6 +4,8 @@ import { useAuth } from "../context/AuthContext";
 import { Container, Row, Col, Form, Button, Card, InputGroup, OverlayTrigger, Tooltip } from "react-bootstrap";
 import "../components/css/VendorSignUp.css";
 
+import TermsOfUseModal from "../components/TermsOfUseModal";
+
 function VendorSignUp() {
   const [formData, setFormData] = useState({
     name: "",
@@ -22,6 +24,8 @@ function VendorSignUp() {
   const [showNiche, setShowNiche] = useState(false);
   const [niche, setNiche] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const navigate = useNavigate();
   const { signupVendor } = useAuth();
@@ -46,6 +50,7 @@ function VendorSignUp() {
     if (formData.password.length < 6) return "Password must be at least 6 characters.";
     if (formData.password !== formData.confirmPassword) return "Passwords do not match.";
     if (!selectedCategory.trim()) return "Business category is required.";
+    if (!agreedToTerms) return "You must agree to the Terms of Use.";
     return null;
   };
 
@@ -290,6 +295,21 @@ function VendorSignUp() {
                       </Col>
                     </Row>
 
+                    <Form.Group className="mb-4">
+                      <Form.Check 
+                        type="checkbox" 
+                        id="vendor-terms-checkbox"
+                        label={
+                          <span>
+                            I agree to the <span className="text-primary" style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setShowTermsModal(true)}>Terms of Use</span>
+                          </span>
+                        }
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        required
+                      />
+                    </Form.Group>
+
                     <Button
                       variant="primary"
                       type="submit"
@@ -306,6 +326,8 @@ function VendorSignUp() {
                         'Register Business'
                       )}
                     </Button>
+
+                    <TermsOfUseModal show={showTermsModal} handleClose={() => setShowTermsModal(false)} />
 
                     <div className="text-center mt-4">
                       <p className="text-muted mb-0">

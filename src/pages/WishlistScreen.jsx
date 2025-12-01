@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Row, Col, ListGroup, Image, Button, Card, Alert } from 'react-bootstrap';
+import { Row, Col, Button, Card, Alert } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
@@ -57,9 +57,16 @@ const WishlistScreen = () => {
             {loading ? (
                 <div>Loading...</div>
             ) : wishlist.length === 0 ? (
-                <Alert variant="info">
-                    Your wishlist is empty. <Link to="/">Go Shopping</Link>
-                </Alert>
+                <div className="text-center py-5">
+                    <div className="mb-4">
+                        <i className="fas fa-heart fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h3 className="fw-bold mb-3">Your Wishlist is Empty</h3>
+                    <p className="text-muted mb-4">Save items you love here to buy them later.</p>
+                    <Link to="/" className="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow-sm" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}>
+                        Start Shopping
+                    </Link>
+                </div>
             ) : (
                 <Row>
                     {wishlist.map((item) => (

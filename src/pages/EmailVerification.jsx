@@ -16,19 +16,27 @@ const EmailVerification = () => {
       }
 
       try {
-        const response = await api.get(`/vendor/verify/${token}`);
-        if (response.data.msg) {
-          setStatus("success");
-          setMessage("🎉 Your email has been successfully verified! You may now log in.");
-        } else {
-          // Fallback if msg is not present but request succeeded (unlikely based on previous code, but good for safety)
-          setStatus("success");
-          setMessage("🎉 Your email has been successfully verified! You may now log in.");
+        // Try verifying as a regular user first
+        try {
+            const response = await api.get(`/app/verify/${token}`);
+            setStatus("success");
+            setMessage("🎉 Your user account has been successfully verified! You may now log in.");
+            return; // Exit if successful
+        } catch (userError) {
+            // If user verification fails, try verifying as a vendor
+            console.log("User verification failed, trying vendor verification...");
+            const response = await api.get(`/vendor/verify/${token}`);
+            if (response.data.msg || response.data.message) {
+                setStatus("success");
+                setMessage("🎉 Your vendor account has been successfully verified! You may now log in.");
+            } else {
+                 throw new Error("Verification failed");
+            }
         }
       } catch (error) {
         setStatus("error");
         setMessage(
-          `❌ ${error.response?.data?.msg || "Verification failed. Invalid or expired token."}`
+          `❌ ${error.response?.data?.msg || error.response?.data?.message || "Verification failed. Invalid or expired token."}`
         );
       }
     };
@@ -56,9 +64,14 @@ const EmailVerification = () => {
       </p>
 
       {status === "success" && (
-        <Link to="/vendor/login" className="btn btn-primary mt-3">
-          Go to Vendor Login
-        </Link>
+        <div className="mt-4">
+            <Link to="/app/login" className="btn btn-primary me-3">
+              Go to Customer Login
+            </Link>
+            <Link to="/vendor/login" className="btn btn-outline-primary">
+              Go to Vendor Login
+            </Link>
+        </div>
       )}
 
       {status === "error" && (

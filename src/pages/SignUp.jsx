@@ -9,6 +9,8 @@ import "../components/css/CustomerAuth.css";
 
 import notificationService from "../utils/notificationService";
 
+import TermsOfUseModal from "../components/TermsOfUseModal";
+
 const SignUp = () => {
     const [user, setUser] = useState({
         name: "",
@@ -23,6 +25,8 @@ const SignUp = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
 
     const navigate = useNavigate();
     const { signupUser } = useAuth();
@@ -37,6 +41,12 @@ const SignUp = () => {
     const submitForm = async (event) => {
         event.preventDefault();
         setError("");
+
+        if (!agreedToTerms) {
+            setError("You must agree to the Terms of Use to sign up.");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -268,6 +278,21 @@ const SignUp = () => {
                                             </InputGroup>
                                         </Form.Group>
 
+                                        <Form.Group className="mb-4">
+                                            <Form.Check 
+                                                type="checkbox" 
+                                                id="terms-checkbox"
+                                                label={
+                                                    <span>
+                                                        I agree to the <span className="text-primary" style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setShowTermsModal(true)}>Terms of Use</span>
+                                                    </span>
+                                                }
+                                                checked={agreedToTerms}
+                                                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                                required
+                                            />
+                                        </Form.Group>
+
                                         <Button
                                             variant="primary"
                                             type="submit"
@@ -285,6 +310,8 @@ const SignUp = () => {
                                             )}
                                         </Button>
                                     </Form>
+
+                                    <TermsOfUseModal show={showTermsModal} handleClose={() => setShowTermsModal(false)} />
 
                                     <div className="divider-text text-muted small mb-3">OR</div>
 

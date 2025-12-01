@@ -112,11 +112,16 @@ const CartScreen = () => {
                         )}
                     </div>
                     {cartItems.length === 0 ? (
-                        <Alert variant='info' className="p-4 text-center">
-                            <h4>Your cart is empty</h4>
-                            <p className="mb-0">Looks like you haven't added anything to your cart yet.</p>
-                            <Link to='/' className="btn btn-primary mt-3">Start Shopping</Link>
-                        </Alert>
+                        <div className="text-center py-5">
+                            <div className="mb-4">
+                                <i className="fas fa-shopping-cart fa-4x text-muted opacity-25"></i>
+                            </div>
+                            <h3 className="fw-bold mb-3">Your Cart is Empty</h3>
+                            <p className="text-muted mb-4">Looks like you haven't added anything to your cart yet.<br/>Explore our products and find something you love!</p>
+                            <Link to='/' className="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow-sm" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}>
+                                Start Shopping
+                            </Link>
+                        </div>
                     ) : (
                         <div className="d-flex flex-column gap-3">
                             {cartItems.filter(item => item && item.product).map((item, index) => (
