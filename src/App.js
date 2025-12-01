@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import SplashScreen from "./components/SplashScreen";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LoadingSpinner from "./components/shared/LoadingSpinner";
+import AnalyticsTracker from "./components/AnalyticsTracker";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -81,6 +82,7 @@ function App() {
         <CartProvider>
           <ThemeProvider>
             <Router>
+              <AnalyticsTracker />
               <Header />
               <main>
                 <Container>
