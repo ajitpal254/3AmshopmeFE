@@ -14,25 +14,25 @@ const HeroBanner = () => {
     const banners = [
         {
             id: 1,
-            title: "New Arrivals",
-            subtitle: "Shop the Latest Trends",
-            cta: "Shop Now",
+            title: "Millions of Products",
+            subtitle: "From Top Verified Sellers",
+            cta: "Shop Marketplace",
             bgGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             link: "/search?sortBy=newest"
         },
         {
             id: 2,
-            title: "Up to 50% Off",
-            subtitle: "Selected Items on Sale",
-            cta: "View Deals",
+            title: "Start Selling Today",
+            subtitle: "Join Our Growing Marketplace",
+            cta: "Become a Vendor",
             bgGradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-            link: "/search?deals=true"
+            link: "/vendor/signup"
         },
         {
             id: 3,
-            title: "Free Shipping",
-            subtitle: "On Orders Over $50",
-            cta: "Start Shopping",
+            title: "Global Shipping",
+            subtitle: "Trusted Vendors Worldwide",
+            cta: "Explore Categories",
             bgGradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
             link: "/search" // General shop
         }
