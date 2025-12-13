@@ -8,7 +8,7 @@ const AnalyticsTracker = () => {
   useEffect(() => {
     // Initialize Google Analytics
     // Replace with your Measurement ID or use an environment variable
-    const TRACKING_ID = process.env.REACT_APP_GA_MEASUREMENT_ID;
+    const TRACKING_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
     if (TRACKING_ID) {
       ReactGA.initialize(TRACKING_ID);
@@ -17,7 +17,7 @@ const AnalyticsTracker = () => {
 
   useEffect(() => {
     // Send pageview with a custom path
-    if (process.env.REACT_APP_GA_MEASUREMENT_ID) {
+    if (import.meta.env.VITE_GA_MEASUREMENT_ID) {
         ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
     }
   }, [location]);

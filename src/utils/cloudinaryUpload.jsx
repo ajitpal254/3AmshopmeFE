@@ -32,8 +32,8 @@ export const uploadImageToCloudinary = async (file, onProgress = null) => {
         }
 
         // Cloudinary credentials from environment
-        const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-        const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
         if (!cloudName || !uploadPreset) {
             reject(new Error('Cloudinary not configured. Please set REACT_APP_CLOUDINARY_CLOUD_NAME and REACT_APP_CLOUDINARY_UPLOAD_PRESET'));
