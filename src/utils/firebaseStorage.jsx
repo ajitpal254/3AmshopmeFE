@@ -1,5 +1,5 @@
 import { storage } from '../firebaseconfig';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 
 /**
  * Upload image to Firebase Storage
@@ -97,10 +97,24 @@ export const uploadProductImage = (file, onProgress) => {
  */
 export const deleteImageFromFirebase = async (imageUrl) => {
     try {
-        // Extract path from URL
-        const baseUrl = 'https://firebasestorage.googleapis.com';
-        if (!imageUrl.startsWith(baseUrl)) {
-            throw new Error('Invalid Firebase Storage URL');
+        // Properly validate Firebase Storage URL using URL object
+        let parsedUrl;
+        try {
+            parsedUrl = new URL(imageUrl);
+        } catch (e) {
+            throw new Error('Invalid URL format');
+        }
+
+        // Validate hostname exactly matches Firebase Storage domain
+        // This prevents URL spoofing attacks like https://firebasestorage.googleapis.com.evil.com
+        const validHostname = 'firebasestorage.googleapis.com';
+        if (parsedUrl.hostname !== validHostname) {
+            throw new Error(`Invalid Firebase Storage URL. Expected hostname: ${validHostname}, got: ${parsedUrl.hostname}`);
+        }
+
+        // Validate protocol is HTTPS
+        if (parsedUrl.protocol !== 'https:') {
+            throw new Error('Invalid protocol. Firebase Storage URLs must use HTTPS');
         }
 
         // This is a simplified version - you might need to adjust based on your URL structure
