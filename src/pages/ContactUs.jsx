@@ -1,34 +1,28 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Card } from 'react-bootstrap';
-import { Helmet } from 'react-helmet-async';
+import React, { useActionState } from 'react';
+import { Container, Row, Col, Form, Button, Card, Spinner } from 'react-bootstrap';
 import notificationService from '../utils/notificationService';
 
+// Mock async action
+const submitContactForm = async (prevState, formData) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const name = formData.get('name');
+    // In a real app, you would send this to your backend
+    console.log('Form submitted for:', name);
+    
+    notificationService.success('Message sent successfully! We will get back to you soon.');
+    return { success: true, message: 'Message sent successfully!' };
+};
+
 const ContactUs = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-    });
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // In a real app, you would send this to your backend
-
-        notificationService.success('Message sent successfully! We will get back to you soon.');
-        setFormData({ name: '', email: '', subject: '', message: '' });
-    };
+    const [state, formAction, isPending] = useActionState(submitContactForm, null);
 
     return (
         <Container className="py-5">
-            <Helmet>
-                <title>Contact Us | 3AmShop</title>
-                <meta name="description" content="Get in touch with 3AmShop support team." />
-            </Helmet>
+            <title>Contact Us | 3AmShop</title>
+            <meta name="description" content="Get in touch with 3AmShop support team." />
+            
             <Row className="justify-content-center">
                 <Col md={8} lg={6}>
                     <div className="text-center mb-5">
@@ -40,15 +34,13 @@ const ContactUs = () => {
                     
                     <Card className="border-0 shadow-sm p-4">
                         <Card.Body>
-                            <Form onSubmit={handleSubmit}>
+                            <Form action={formAction}>
                                 <Form.Group className="mb-3" controlId="formName">
                                     <Form.Label>Name</Form.Label>
                                     <Form.Control 
                                         type="text" 
                                         placeholder="Your Name" 
                                         name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
                                         required
                                     />
                                 </Form.Group>
@@ -59,8 +51,6 @@ const ContactUs = () => {
                                         type="email" 
                                         placeholder="name@example.com" 
                                         name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
                                         required
                                     />
                                 </Form.Group>
@@ -71,8 +61,6 @@ const ContactUs = () => {
                                         type="text" 
                                         placeholder="How can we help?" 
                                         name="subject"
-                                        value={formData.subject}
-                                        onChange={handleChange}
                                         required
                                     />
                                 </Form.Group>
@@ -84,15 +72,32 @@ const ContactUs = () => {
                                         rows={5} 
                                         placeholder="Your message..." 
                                         name="message"
-                                        value={formData.message}
-                                        onChange={handleChange}
                                         required
                                     />
                                 </Form.Group>
 
                                 <div className="d-grid">
-                                    <Button variant="primary" type="submit" size="lg">
-                                        Send Message
+                                    <Button 
+                                        variant="primary" 
+                                        type="submit" 
+                                        size="lg" 
+                                        disabled={isPending}
+                                    >
+                                        {isPending ? (
+                                            <>
+                                                <Spinner
+                                                    as="span"
+                                                    animation="border"
+                                                    size="sm"
+                                                    role="status"
+                                                    aria-hidden="true"
+                                                    className="me-2"
+                                                />
+                                                Sending...
+                                            </>
+                                        ) : (
+                                            'Send Message'
+                                        )}
                                     </Button>
                                 </div>
                             </Form>

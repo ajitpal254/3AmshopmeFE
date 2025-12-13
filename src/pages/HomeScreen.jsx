@@ -8,6 +8,8 @@ import PromoBanner from "../components/home/PromoBanner";
 import ProductRow from "../components/home/ProductRow";
 import Newsletter from "../components/home/Newsletter";
 import Testimonials from "../components/home/Testimonials";
+import VendorSpotlight from "../components/home/VendorSpotlight";
+import BecomeSellerBanner from "../components/home/BecomeSellerBanner";
 import LoadingSpinner from "../components/shared/LoadingSpinner";
 import Message from "../components/shared/Message";
 import useScrollReveal from "../hooks/useScrollReveal";
@@ -138,7 +140,7 @@ const HomeScreen = () => {
                     {/* Most Popular Section */}
                     {popularProducts.length > 0 && (
                         <ProductRow
-                            title="Most Popular"
+                            title="Trending Now"
                             products={popularProducts}
                             icon="fas fa-fire text-danger"
                         />
@@ -197,6 +199,12 @@ const HomeScreen = () => {
                             </Message>
                         </div>
                     )}
+
+                    {/* Multi-Vendor Sections */}
+                    <div className="container">
+                        <VendorSpotlight />
+                        <BecomeSellerBanner />
+                    </div>
 
                     <Testimonials />
                     <Newsletter />

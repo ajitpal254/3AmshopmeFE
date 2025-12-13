@@ -60,6 +60,9 @@ export const ProductScreen = ({ product }) => {
     const displayPrice = formatPrice(rawDisplayPrice || 0, currency);
     const originalPrice = formatPrice(product.price || 0, currency);
 
+    // Vendor Name Logic
+    const vendorName = product.createdByName || product.brand || "Verified Seller";
+
     return (
         <>
             <Card
@@ -92,6 +95,13 @@ export const ProductScreen = ({ product }) => {
                 </div>
 
                 <Card.Body className="d-flex flex-column">
+                    <div className="vendor-info mb-1">
+                        <small className="text-muted">
+                            Sold by: <strong>{vendorName}</strong>
+                            <i className="fas fa-check-circle text-primary ms-1" style={{ fontSize: '0.8rem' }} title="Verified Vendor"></i>
+                        </small>
+                    </div>
+
                     <Link to={`/products/${product._id}`} className="text-decoration-none text-dark">
                         <Card.Title as="div" className="product-title-text">
                             {product.name}
