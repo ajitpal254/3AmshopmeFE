@@ -1,22 +1,33 @@
-import React, { useActionState } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Spinner } from 'react-bootstrap';
 import notificationService from '../utils/notificationService';
 
-// Mock async action
-const submitContactForm = async (prevState, formData) => {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const name = formData.get('name');
-    // In a real app, you would send this to your backend
-    console.log('Form submitted for:', name);
-    
-    notificationService.success('Message sent successfully! We will get back to you soon.');
-    return { success: true, message: 'Message sent successfully!' };
-};
-
 const ContactUs = () => {
-    const [state, formAction, isPending] = useActionState(submitContactForm, null);
+    const [isPending, setIsPending] = useState(false);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsPending(true);
+        
+        try {
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const email = formData.get('name');
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // In a real app, you would send this to your backend
+            console.log('Form submitted for:', name, email);
+            
+            notificationService.success('Message sent successfully! We will get back to you soon.');
+            e.target.reset();
+        } catch (error) {
+            notificationService.error('Failed to send message. Please try again.');
+        } finally {
+            setIsPending(false);
+        }
+    };
 
     return (
         <Container className="py-5">
@@ -34,7 +45,7 @@ const ContactUs = () => {
                     
                     <Card className="border-0 shadow-sm p-4">
                         <Card.Body>
-                            <Form action={formAction}>
+                            <Form onSubmit={handleSubmit}>
                                 <Form.Group className="mb-3" controlId="formName">
                                     <Form.Label>Name</Form.Label>
                                     <Form.Control 
