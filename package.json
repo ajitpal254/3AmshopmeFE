@@ -16,7 +16,7 @@
     "firebase": "^12.6.0",
     "firebase-admin": "^13.3.0",
     "frontend": "file:",
-    "graphql": "^15.5.0",
+    "graphql": "^16.13.1",
     "jwt-decode": "^4.0.0",
     "postcss": "^8.4.38",
     "react": "^19.2.0",
