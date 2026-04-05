@@ -1,0 +1,32 @@
+[build]
+  # Netlify build: sync Lex intents → then build the React app
+  command = "cd lambda/lex-setup && npm ci && node sync-intents.mjs && cd ../.. && npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# ── Environment variables to set in Netlify UI ──────────────────────────────
+# Do NOT hardcode secrets here. Set these in:
+#   Netlify → Site Settings → Environment Variables
+#
+#   LEX_BOT_ID            = H9R3AKKOPO  (your Lex Bot ID from setup)
+#   LEX_BOT_ALIAS_ID      = (your alias ID — used by the Lambda)
+#   LEX_LOCALE_ID         = en_US
+#   LEX_REGION            = us-east-1
+#   LEX_AWS_KEY_ID        = (IAM access key — Netlify blocks AWS_ACCESS_KEY_ID)
+#   LEX_AWS_SECRET        = (IAM secret key — Netlify blocks AWS_SECRET_ACCESS_KEY)
+#   VITE_CHATBOT_API_URL  = https://xxx.execute-api.us-east-1.amazonaws.com/chatbot
+#   VITE_CHATBOT_API_KEY  = (optional — your API Gateway key)
+
+# ── Netlify deploy contexts ──────────────────────────────────────────────────
+[context.production]
+  command = "cd lambda/lex-setup && npm ci && node sync-intents.mjs && cd ../.. && npm run build"
+
+[context.deploy-preview]
+  # Skip lex sync on preview deploys to keep them fast
+  command = "npm run build"
+
+[context.branch-deploy]
+  # Skip lex sync on branch deploys
+  command = "npm run build"

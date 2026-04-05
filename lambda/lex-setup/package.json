@@ -1,0 +1,14 @@
+{
+  "name": "lex-setup",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Scripts for setting up the Amazon Lex V2 chatbot for 3AmShoppme",
+  "scripts": {
+    "setup": "node setup-lex-bot.mjs",
+    "sync": "node sync-intents.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-lex-models-v2": "^3.0.0",
+    "@aws-sdk/client-iam": "^3.0.0"
+  }
+}

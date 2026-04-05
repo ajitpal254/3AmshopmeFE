@@ -18,6 +18,7 @@ import { CartProvider } from "./context/CartContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { getCart } from "./actions/cartActions";
 import CommandPalette from "./components/ai/CommandPalette";
+import Chatbot from "./components/ai/Chatbot";
 
 // Lazy Loaded Pages
 const HomeScreen = lazy(() => import("./pages/HomeScreen"));
@@ -85,6 +86,7 @@ function App() {
             <Router>
               <AnalyticsTracker />
               <CommandPalette />
+              <Chatbot />
               <Header />
               <main>
                 <Container>

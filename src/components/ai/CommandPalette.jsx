@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
 import './CommandPalette.css';
-
 const CommandPalette = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [query, setQuery] = useState('');
@@ -36,40 +34,26 @@ const CommandPalette = () => {
         }
     }, [isOpen]);
 
-    const handleCommandSubmit = async (e) => {
+    const handleCommandSubmit = (e) => {
         if (e.key === 'Enter' && query.trim()) {
             setLoading(true);
             setAiResponse(null);
             
-            try {
-                const token = localStorage.getItem('token') || localStorage.getItem('vendorToken');
-                const role = user?.isAdmin ? 'admin' : (vendor ? 'vendor' : 'user');
-                
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                };
-
-                const { data } = await axios.post('/api/ai/command', {
-                    command: query,
-                    role: role,
-                    context: window.location.pathname
-                }, config);
-
-                if (data.success) {
-                    setAiResponse(data.message);
-                    if (data.action) {
-                        handleAction(data.action);
-                    }
+            setTimeout(() => {
+                const lowerQuery = query.toLowerCase();
+                if (lowerQuery.includes("sales")) {
+                    setAiResponse("Here are your recent sales...");
+                } else if (lowerQuery.includes("products")) {
+                    setAiResponse("Navigating to products...");
+                    handleAction({ type: 'NAVIGATE', payload: '/admin/productlist' });
+                } else if (lowerQuery.includes("dark mode")) {
+                    setAiResponse("Switching to dark mode...");
+                    handleAction({ type: 'THEME_CHANGE', payload: 'dark' });
+                } else {
+                    setAiResponse("I'm a simple command palette now. Try asking for products or sales.");
                 }
-            } catch (error) {
-                console.error("AI Command Error:", error);
-                setAiResponse("Sorry, I couldn't process that command. Please try again.");
-            } finally {
                 setLoading(false);
-            }
+            }, 500);
         }
     };
 
