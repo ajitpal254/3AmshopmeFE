@@ -1,6 +1,6 @@
 [build]
   # Netlify build: sync Lex intents → then build the React app
-  command = "cd lambda/lex-setup && npm ci && node sync-intents.mjs && cd ../.. && npm run build"
+  command = "cd lambda/lex-setup && npm install && node sync-intents.mjs && cd ../.. && npm run build"
   publish = "build"
 
 [build.environment]
@@ -21,7 +21,7 @@
 
 # ── Netlify deploy contexts ──────────────────────────────────────────────────
 [context.production]
-  command = "cd lambda/lex-setup && npm ci && node sync-intents.mjs && cd ../.. && npm run build"
+  command = "cd lambda/lex-setup && npm install && node sync-intents.mjs && cd ../.. && npm run build"
 
 [context.deploy-preview]
   # Skip lex sync on preview deploys to keep them fast
