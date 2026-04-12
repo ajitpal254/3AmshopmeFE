@@ -1,7 +1,5 @@
 # AmShoppee - E-Commerce Frontend
 
-[![Scanned by Frogbot](https://raw.github.com/jfrog/frogbot/master/images/frogbot-badge.svg)](https://jfrog.com/help/r/jfrog-security-user-guide/shift-left-on-security/frogbot)
-
 A modern, full-featured e-commerce frontend application built with React.js. This project provides a complete online shopping experience with user authentication, product browsing, shopping cart, checkout process, and order management.
 
 ## 📋 Table of Contents
