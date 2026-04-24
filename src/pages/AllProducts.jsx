@@ -17,7 +17,7 @@ const AllProducts = () => {
         search: ''
     });
 
-    const categories = ['Electronics', 'Fashion', 'Home & Kitchen', 'Sports', 'Books', 'Beauty'];
+    const categories = ['Electronics', 'Fashion', 'Home & Kitchen', 'Sneakers', 'Watches', 'Beauty'];
 
     // Initialize filters from URL on mount and when URL changes
     useEffect(() => {

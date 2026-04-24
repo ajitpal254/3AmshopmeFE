@@ -110,3 +110,46 @@
     height: 1px;
     background: #e9ecef;
 }
+
+@media (max-width: 767px) {
+    .customer-auth-page {
+        padding: 1rem 0;
+    }
+
+    .customer-auth-card {
+        border-radius: 18px;
+    }
+
+    .login-options-row {
+        align-items: flex-start !important;
+    }
+
+    .login-forgot-link {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .customer-auth-page .container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+
+    .customer-auth-card {
+        border-radius: 16px;
+    }
+
+    .customer-auth-card .card-body,
+    .customer-auth-card .bg-white {
+        padding: 1.25rem !important;
+    }
+
+    .google-btn {
+        font-size: 0.95rem;
+    }
+
+    .divider-text::before,
+    .divider-text::after {
+        width: 38%;
+    }
+}

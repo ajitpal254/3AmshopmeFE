@@ -44,7 +44,7 @@ const Header = () => {
           </LinkContainer>
 
           {/* Search Bar - Center (Desktop) */}
-          <div className="d-none d-lg-flex flex-grow-1 justify-content-center mx-3" style={{ maxWidth: '700px' }}>
+          <div className="desktop-header-search d-none d-lg-flex flex-grow-1 justify-content-center mx-4">
             <SearchBar />
           </div>
 
@@ -110,6 +110,12 @@ const Header = () => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      <div className="mobile-header-search d-lg-none">
+        <Container fluid>
+          <SearchBar />
+        </Container>
+      </div>
 
       {/* Mobile Drawer */}
       <MobileDrawer

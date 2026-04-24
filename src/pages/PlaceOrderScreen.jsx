@@ -84,10 +84,10 @@ const PlaceOrderScreen = () => {
     };
 
     return (
-        <div className="container mt-5">
-            <Row>
-                <Col md={8}>
-                    <Card className="mb-4 border-0 shadow-sm">
+        <div className="container mt-4 mt-md-5 checkout-flow place-order-screen">
+            <Row className="g-4">
+                <Col lg={8}>
+                    <Card className="mb-0 border-0 shadow-sm">
                         <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
                             <h4 className="mb-0">Shipping & Payment</h4>
                         </Card.Header>
@@ -131,16 +131,16 @@ const PlaceOrderScreen = () => {
                                     <ListGroup variant="flush">
                                         {cartItems.map((item, index) => (
                                             <ListGroup.Item key={index} className="border-0 px-0 py-2">
-                                                <Row className="align-items-center">
-                                                    <Col md={2}>
+                                                <Row className="align-items-center g-3">
+                                                    <Col xs={4} sm={3} md={2}>
                                                         <Image src={item.image} alt={item.name} fluid rounded />
                                                     </Col>
-                                                    <Col>
-                                                        <Link to={`/products/${item.product}`} className="text-decoration-none text-dark fw-bold">
+                                                    <Col xs={8} sm={9} md={6}>
+                                                        <Link to={`/products/${item.product}`} className="text-decoration-none text-dark fw-bold cart-item-title">
                                                             {item.name}
                                                         </Link>
                                                     </Col>
-                                                    <Col md={4} className="text-end">
+                                                    <Col xs={12} md={4} className="text-md-end place-order-item-total">
                                                         {item.qty} x ${item.price} = <strong>${(item.qty * item.price).toFixed(2)}</strong>
                                                     </Col>
                                                 </Row>
@@ -153,8 +153,8 @@ const PlaceOrderScreen = () => {
                     </Card>
                 </Col>
 
-                <Col md={4}>
-                    <Card className="border-0 shadow-sm">
+                <Col lg={4}>
+                    <Card className="border-0 shadow-sm cart-summary-card">
                         <Card.Header className="bg-white border-bottom-0 pt-4 px-4">
                             <h4 className="mb-0">Order Summary</h4>
                         </Card.Header>

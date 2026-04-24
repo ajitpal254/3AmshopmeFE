@@ -1,18 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, FormControl } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const SearchBar = ({ className, onSearch }) => {
     const [keyword, setKeyword] = useState("");
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        setKeyword(params.get("keyword") || "");
+    }, [location.search]);
 
     const submitHandler = (e) => {
         e.preventDefault();
-        if (keyword.trim()) {
-            navigate(`/search?keyword=${keyword}`);
+
+        const trimmedKeyword = keyword.trim();
+
+        if (trimmedKeyword) {
+            navigate(`/search?keyword=${encodeURIComponent(trimmedKeyword)}`);
         } else {
-            navigate("/");
+            navigate("/search");
         }
+
         if (onSearch) {
             onSearch();
         }

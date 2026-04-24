@@ -23,12 +23,17 @@ const ShippingScreen = () => {
     }
 
     return (
-        <div className="container mt-5">
-            <div className="row justify-content-md-center">
-                <div className="col-md-6">
-                    <h1>Shipping</h1>
-                    <Form onSubmit={submitHandler}>
-                        <Form.Group controlId='address'>
+        <div className="container mt-4 mt-md-5 checkout-flow shipping-screen">
+            <div className="row justify-content-center">
+                <div className="col-12 col-md-8 col-lg-6">
+                    <div className="checkout-panel shadow-sm">
+                        <div className="checkout-panel-header">
+                            <p className="checkout-eyebrow mb-2">Checkout</p>
+                            <h1 className="mb-1">Shipping</h1>
+                            <p className="text-muted mb-0">Add your delivery details to continue to order review.</p>
+                        </div>
+                    <Form onSubmit={submitHandler} className="checkout-form">
+                        <Form.Group controlId='address' className="mb-3">
                             <Form.Label>Address</Form.Label>
                             <Form.Control
                                 type='text'
@@ -39,7 +44,7 @@ const ShippingScreen = () => {
                             ></Form.Control>
                         </Form.Group>
 
-                        <Form.Group controlId='city'>
+                        <Form.Group controlId='city' className="mb-3">
                             <Form.Label>City</Form.Label>
                             <Form.Control
                                 type='text'
@@ -50,7 +55,7 @@ const ShippingScreen = () => {
                             ></Form.Control>
                         </Form.Group>
 
-                        <Form.Group controlId='postalCode'>
+                        <Form.Group controlId='postalCode' className="mb-3">
                             <Form.Label>Postal Code</Form.Label>
                             <Form.Control
                                 type='text'
@@ -61,7 +66,7 @@ const ShippingScreen = () => {
                             ></Form.Control>
                         </Form.Group>
 
-                        <Form.Group controlId='country'>
+                        <Form.Group controlId='country' className="mb-4">
                             <Form.Label>Country</Form.Label>
                             <Form.Control
                                 type='text'
@@ -72,10 +77,11 @@ const ShippingScreen = () => {
                             ></Form.Control>
                         </Form.Group>
 
-                        <Button type='submit' variant='primary' className='mt-3'>
+                        <Button type='submit' variant='primary' className='w-100 py-2 fw-bold checkout-primary-btn'>
                             Continue
                         </Button>
                     </Form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -100,13 +100,13 @@ const CartScreen = () => {
     const total = Math.max(0, subtotal - discount)
 
     return (
-        <div className="container py-5">
+        <div className="container py-4 py-md-5 checkout-flow cart-screen">
             <Row>
-                <Col md={8}>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h1 className="fw-bold">Shopping Cart</h1>
+                <Col lg={8}>
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                        <h1 className="fw-bold mb-0">Shopping Cart</h1>
                         {cartItems.length > 0 && (
-                            <Button variant="outline-danger" size="sm" onClick={confirmClearCart}>
+                            <Button variant="outline-danger" size="sm" onClick={confirmClearCart} className="align-self-start align-self-md-auto">
                                 <i className="fas fa-trash me-2"></i> Clear Cart
                             </Button>
                         )}
@@ -125,21 +125,21 @@ const CartScreen = () => {
                     ) : (
                         <div className="d-flex flex-column gap-3">
                             {cartItems.filter(item => item && item.product).map((item, index) => (
-                                <Card key={item.product || index} className="border-0 shadow-sm">
+                                <Card key={item.product || index} className="border-0 shadow-sm cart-item-card">
                                     <Card.Body>
-                                        <Row className="align-items-center">
-                                            <Col md={2}>
+                                        <Row className="align-items-center g-3 cart-item-row">
+                                            <Col xs={4} sm={3} md={2}>
                                                 <Image src={item.image} alt={item.name} fluid rounded />
                                             </Col>
-                                            <Col md={4}>
-                                                <Link to={`/products/${item.product}`} className="text-decoration-none text-dark fw-bold">
+                                            <Col xs={8} sm={9} md={4}>
+                                                <Link to={`/products/${item.product}`} className="text-decoration-none text-dark fw-bold cart-item-title">
                                                     {item.name}
                                                 </Link>
                                             </Col>
-                                            <Col md={2} className="fw-bold text-muted">
+                                            <Col xs={6} md={2} className="fw-bold text-muted cart-item-meta">
                                                 {currencySymbol}{formatPrice(item.price, currency)}
                                             </Col>
-                                            <Col md={2}>
+                                            <Col xs={6} md={2}>
                                                 <Form.Control
                                                     as='select'
                                                     value={item.qty}
@@ -157,11 +157,11 @@ const CartScreen = () => {
                                                     ))}
                                                 </Form.Control>
                                             </Col>
-                                            <Col md={2} className="text-end">
+                                            <Col xs={12} md={2} className="text-md-end">
                                                 <Button
                                                     type='button'
                                                     variant='light'
-                                                    className="text-danger"
+                                                    className="text-danger cart-item-remove"
                                                     onClick={() => removeFromCartHandler(item.product)}
                                                 >
                                                     <i className='fas fa-trash'></i>
@@ -174,8 +174,8 @@ const CartScreen = () => {
                         </div>
                     )}
                 </Col>
-                <Col md={4}>
-                    <Card className="border-0 shadow-sm">
+                <Col lg={4}>
+                    <Card className="border-0 shadow-sm cart-summary-card">
                         <Card.Body>
                             <h4 className="mb-3">Order Summary</h4>
                             <ListGroup variant='flush'>
@@ -191,7 +191,7 @@ const CartScreen = () => {
                                     <h6 className="mb-2">Have a Coupon?</h6>
                                     {!coupon ? (
                                         <>
-                                            <InputGroup className='mb-2'>
+                                            <InputGroup className='mb-2 cart-coupon-group'>
                                                 <Form.Control
                                                     type='text'
                                                     placeholder='Enter code'
@@ -206,7 +206,7 @@ const CartScreen = () => {
                                             {couponSuccess && <small className='text-success'>{couponSuccess}</small>}
                                         </>
                                     ) : (
-                                        <Alert variant='success' className='d-flex justify-content-between align-items-center py-2 px-3 mb-0'>
+                                        <Alert variant='success' className='d-flex justify-content-between align-items-center py-2 px-3 mb-0 cart-coupon-alert'>
                                             <small>
                                                 <strong>{coupon.code}</strong> applied
                                             </small>

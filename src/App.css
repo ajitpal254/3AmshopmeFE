@@ -266,3 +266,126 @@ body.dark .table {
 body.dark .table-striped>tbody>tr:nth-of-type(odd)>* {
   color: #f3f4f6;
 }
+
+.checkout-flow {
+  --checkout-accent: #667eea;
+}
+
+.checkout-panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 24px;
+  padding: 1.5rem;
+}
+
+.checkout-panel-header {
+  margin-bottom: 1.25rem;
+}
+
+.checkout-eyebrow {
+  color: var(--checkout-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.checkout-primary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: 0 12px 24px rgba(102, 126, 234, 0.22);
+}
+
+.cart-summary-card {
+  position: sticky;
+  top: 6rem;
+  border-radius: 24px !important;
+}
+
+.cart-item-card {
+  border-radius: 20px !important;
+}
+
+.cart-item-title {
+  display: inline-block;
+  line-height: 1.35;
+}
+
+.cart-item-remove {
+  min-width: 44px;
+}
+
+.cart-coupon-group .form-control,
+.cart-coupon-group .btn {
+  min-height: 44px;
+}
+
+.cart-coupon-alert {
+  gap: 0.75rem;
+}
+
+.place-order-item-total {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 991px) {
+  .cart-summary-card {
+    position: static;
+    top: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .checkout-flow h1 {
+    font-size: 1.75rem;
+  }
+
+  .cart-item-meta {
+    font-size: 0.95rem;
+  }
+
+  .cart-item-remove {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .cart-coupon-group {
+    flex-direction: column;
+  }
+
+  .cart-coupon-group .btn {
+    width: 100%;
+    border-radius: 0.5rem !important;
+  }
+
+  .place-order-item-total {
+    text-align: left !important;
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
+  }
+}
+
+@media (max-width: 576px) {
+  .checkout-panel {
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .cart-screen .card-body,
+  .place-order-screen .card-header,
+  .place-order-screen .list-group-item,
+  .cart-summary-card .card-body {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .cart-screen .btn,
+  .shipping-screen .btn,
+  .place-order-screen .btn {
+    min-height: 44px;
+  }
+
+  .cart-screen .fa-shopping-cart.fa-4x {
+    font-size: 3rem !important;
+  }
+}

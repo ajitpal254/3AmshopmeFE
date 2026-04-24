@@ -172,7 +172,7 @@ const Login = () => {
                       </InputGroup>
                     </Form.Group>
 
-                    <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
+                    <Form.Group className="mb-3 login-options-row d-flex justify-content-between align-items-center flex-column flex-sm-row gap-2">
                       <Form.Check
                         type="checkbox"
                         name="isAdmin"
@@ -182,7 +182,7 @@ const Login = () => {
                         onChange={onChange}
                         className="text-muted"
                       />
-                      <Link to="/app/forgot-password" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
+                      <Link to="/app/forgot-password" className="login-forgot-link" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
                         Forgot Password?
                       </Link>
                     </Form.Group>
