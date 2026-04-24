@@ -1,20 +1,10 @@
 #!/usr/bin/env node
 /**
- * sync-intents.mjs
+ * Sync intents from bot-definition.json to an existing Amazon Lex V2 bot.
  *
- * Syncs intents from bot-definition.json to an EXISTING Amazon Lex V2 bot.
- * Designed to run as part of a Netlify build — NOT a first-time setup script.
- * 
- * For first-time setup, run setup-lex-bot.mjs instead.
- *
- * Required Netlify Environment Variables:
- *   LEX_BOT_ID          - Your Lex V2 Bot ID (e.g. BDMAAJAXB4)
- *   AWS_ACCESS_KEY_ID   - AWS IAM access key
- *   AWS_SECRET_ACCESS_KEY - AWS IAM secret key
- *
- * Optional:
- *   LEX_LOCALE_ID       - Default: en_US
- *   LEX_REGION          - Default: us-east-1
+ * In CI this script is best-effort by default so a temporary AWS credential
+ * problem does not fail the whole frontend deploy. Set LEX_SYNC_REQUIRED=true
+ * to make sync failures blocking again.
  */
 
 import {
@@ -31,51 +21,78 @@ import { dirname, join } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// ── Config from env vars ───────────────────────────────────────────────────
-const BOT_ID     = process.env.LEX_BOT_ID;
-const LOCALE_ID  = process.env.LEX_LOCALE_ID  || "en_US";
-const REGION     = process.env.LEX_REGION      || "us-east-1";
+const BOT_ID = process.env.LEX_BOT_ID;
+const LOCALE_ID = process.env.LEX_LOCALE_ID || "en_US";
+const REGION = process.env.LEX_REGION || "us-east-1";
+const SYNC_REQUIRED = process.env.LEX_SYNC_REQUIRED === "true";
+const isCI = process.env.CI === "true";
+
+function exitForSyncIssue(message, details = []) {
+  const logger = SYNC_REQUIRED ? console.error : console.warn;
+  const prefix = SYNC_REQUIRED ? "❌" : "⚠️";
+  logger(`${prefix} ${message}`);
+  for (const line of details) {
+    logger(`   ${line}`);
+  }
+  process.exit(SYNC_REQUIRED ? 1 : 0);
+}
 
 if (!BOT_ID) {
-  console.error("❌ LEX_BOT_ID environment variable is required.");
-  console.error("   Set it in Netlify: Site settings → Environment variables.");
-  console.error("   Locally: $env:LEX_BOT_ID='BDMAAJAXB4'; node sync-intents.mjs");
-  process.exit(1);
+  exitForSyncIssue("LEX_BOT_ID environment variable is required to sync Lex intents.", [
+    "Set it in Netlify: Site settings -> Environment variables.",
+    "Locally: $env:LEX_BOT_ID='BDMAAJAXB4'; node sync-intents.mjs",
+    "Frontend build will continue without Lex sync.",
+  ]);
 }
 
-// In CI (Netlify), explicit creds are required. Locally, ~/.aws/credentials is used.
-const isCI = process.env.CI === "true";
 if (isCI && (!process.env.LEX_AWS_KEY_ID || !process.env.LEX_AWS_SECRET)) {
-  console.error("❌ LEX_AWS_KEY_ID and LEX_AWS_SECRET are required in Netlify.");
-  console.error("   Netlify blocks AWS_ACCESS_KEY_ID — use these custom names instead:");
-  console.error("   LEX_AWS_KEY_ID     → your AWS Access Key ID");
-  console.error("   LEX_AWS_SECRET     → your AWS Secret Access Key");
-  process.exit(1);
+  exitForSyncIssue("LEX_AWS_KEY_ID and LEX_AWS_SECRET are required in Netlify to sync Lex intents.", [
+    "Netlify blocks AWS_ACCESS_KEY_ID - use these custom names instead.",
+    "LEX_AWS_KEY_ID -> your AWS Access Key ID",
+    "LEX_AWS_SECRET -> your AWS Secret Access Key",
+    "Frontend build will continue without Lex sync.",
+  ]);
 }
 
-// Build credentials — use custom names in CI, fall back to default chain locally
-const credentials = (process.env.LEX_AWS_KEY_ID && process.env.LEX_AWS_SECRET)
-  ? { accessKeyId: process.env.LEX_AWS_KEY_ID, secretAccessKey: process.env.LEX_AWS_SECRET }
-  : undefined; // SDK will use ~/.aws/credentials locally
+const credentials =
+  process.env.LEX_AWS_KEY_ID && process.env.LEX_AWS_SECRET
+    ? {
+        accessKeyId: process.env.LEX_AWS_KEY_ID,
+        secretAccessKey: process.env.LEX_AWS_SECRET,
+      }
+    : undefined;
 
 const lexClient = new LexModelsV2Client({
   region: REGION,
   ...(credentials && { credentials }),
 });
+
 const definition = JSON.parse(
   readFileSync(join(__dirname, "bot-definition.json"), "utf-8")
 );
-const { locale, intents: desiredIntents } = definition;
+const desiredIntents = definition.intents || [];
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const log   = (m) => console.log(`✅ ${m}`);
-const warn  = (m) => console.warn(`⚠️  ${m}`);
-const info  = (m) => console.log(`   ${m}`);
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const log = (message) => console.log(`✅ ${message}`);
+const info = (message) => console.log(`   ${message}`);
 
-// ── Fetch all existing intents from Lex ────────────────────────────────────
+function isCredentialError(error) {
+  const name = error?.name || "";
+  const message = error?.message || "";
+  return (
+    name === "UnrecognizedClientException" ||
+    name === "InvalidSignatureException" ||
+    name === "ExpiredTokenException" ||
+    /security token/i.test(message) ||
+    /credential/i.test(message) ||
+    /signature/i.test(message)
+  );
+}
+
 async function getExistingIntents() {
   const existing = {};
   let nextToken;
+
   do {
     const { intentSummaries, nextToken: next } = await lexClient.send(
       new ListIntentsCommand({
@@ -86,24 +103,33 @@ async function getExistingIntents() {
         ...(nextToken && { nextToken }),
       })
     );
+
     for (const intent of intentSummaries || []) {
       existing[intent.intentName] = intent.intentId;
     }
+
     nextToken = next;
   } while (nextToken);
+
   return existing;
 }
 
-// ── Build an intent payload ────────────────────────────────────────────────
 function buildIntentPayload(intent, extras = {}) {
-  const utterances = (intent.sampleUtterances || []).map((u) => ({ utterance: u }));
+  const utterances = (intent.sampleUtterances || []).map((utterance) => ({
+    utterance,
+  }));
+
   const closingPayload = intent.closingResponse
     ? {
         intentClosingSetting: {
           closingResponse: {
-            messageGroups: [{
-              message: { plainTextMessage: { value: intent.closingResponse } },
-            }],
+            messageGroups: [
+              {
+                message: {
+                  plainTextMessage: { value: intent.closingResponse },
+                },
+              },
+            ],
           },
           active: true,
         },
@@ -122,14 +148,12 @@ function buildIntentPayload(intent, extras = {}) {
   };
 }
 
-// ── Sync intents: create new, update changed ───────────────────────────────
 async function syncIntents(existingIntents) {
   let created = 0;
   let updated = 0;
   let skipped = 0;
 
   for (const intent of desiredIntents) {
-    // FallbackIntent is auto-managed by Lex V2 — skip
     if (intent.name === "FallbackIntent") {
       skipped++;
       continue;
@@ -138,41 +162,45 @@ async function syncIntents(existingIntents) {
     const existingId = existingIntents[intent.name];
 
     if (!existingId) {
-      // ── CREATE ──
       info(`Creating: ${intent.name}`);
       const { intentId } = await lexClient.send(
         new CreateIntentCommand(buildIntentPayload(intent))
       );
       log(`Created "${intent.name}" (ID: ${intentId})`);
       created++;
-    } else {
-      // ── UPDATE ──
-      info(`Updating: ${intent.name}`);
-      await lexClient.send(
-        new UpdateIntentCommand(buildIntentPayload(intent, { intentId: existingId }))
-      );
-      log(`Updated "${intent.name}"`);
-      updated++;
+      continue;
     }
+
+    info(`Updating: ${intent.name}`);
+    await lexClient.send(
+      new UpdateIntentCommand(buildIntentPayload(intent, { intentId: existingId }))
+    );
+    log(`Updated "${intent.name}"`);
+    updated++;
   }
 
   return { created, updated, skipped };
 }
 
-// ── Rebuild bot locale ─────────────────────────────────────────────────────
 async function buildLocale() {
   console.log("\n🔄 Building bot locale...");
-  await lexClient.send(new BuildBotLocaleCommand({
-    botId: BOT_ID,
-    botVersion: "DRAFT",
-    localeId: LOCALE_ID,
-  }));
+  await lexClient.send(
+    new BuildBotLocaleCommand({
+      botId: BOT_ID,
+      botVersion: "DRAFT",
+      localeId: LOCALE_ID,
+    })
+  );
 
   let status = "Building";
   while (status === "Building" || status === "ReadyExpressTesting") {
     await sleep(4000);
     const { botLocaleStatus } = await lexClient.send(
-      new DescribeBotLocaleCommand({ botId: BOT_ID, botVersion: "DRAFT", localeId: LOCALE_ID })
+      new DescribeBotLocaleCommand({
+        botId: BOT_ID,
+        botVersion: "DRAFT",
+        localeId: LOCALE_ID,
+      })
     );
     status = botLocaleStatus;
     info(`Build status: ${status}`);
@@ -181,16 +209,16 @@ async function buildLocale() {
   if (status !== "Built") {
     throw new Error(`Bot locale build failed. Final status: ${status}`);
   }
+
   log("Bot locale built successfully");
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────
 async function main() {
   console.log("🤖 Syncing Lex V2 intents from bot-definition.json...");
   console.log(`   Bot ID : ${BOT_ID}`);
   console.log(`   Locale : ${LOCALE_ID}`);
   console.log(`   Region : ${REGION}`);
-  console.log(`   Intents: ${desiredIntents.map((i) => i.name).join(", ")}\n`);
+  console.log(`   Intents: ${desiredIntents.map((intent) => intent.name).join(", ")}\n`);
 
   try {
     const existingIntents = await getExistingIntents();
@@ -198,20 +226,27 @@ async function main() {
 
     const { created, updated, skipped } = await syncIntents(existingIntents);
 
-    if (created + updated === 0) {
-      log("No changes detected — bot is already up to date.");
-    } else {
+    if (created + updated > 0) {
       await buildLocale();
+    } else {
+      log("No changes detected - bot is already up to date.");
     }
 
-    console.log("\n" + "=".repeat(50));
+    console.log(`\n${"=".repeat(50)}`);
     console.log("🎉 Intent sync complete!");
     console.log(`   Created : ${created}`);
     console.log(`   Updated : ${updated}`);
     console.log(`   Skipped : ${skipped} (built-in)`);
     console.log("=".repeat(50));
-  } catch (err) {
-    console.error("\n❌ Sync failed:", err.message);
+  } catch (error) {
+    if (!SYNC_REQUIRED && isCredentialError(error)) {
+      console.warn(`\n⚠️ Lex sync skipped: ${error.message}`);
+      console.warn("   The frontend build can still complete.");
+      console.warn("   Verify LEX_AWS_KEY_ID / LEX_AWS_SECRET in Netlify if Lex sync should run.");
+      process.exit(0);
+    }
+
+    console.error("\n❌ Sync failed:", error.message);
     process.exit(1);
   }
 }
