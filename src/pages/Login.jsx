@@ -22,7 +22,11 @@ const Login = () => {
   const location = useLocation();
   const { loginUser, user: loggedInUser } = useAuth();
 
-  const redirect = location.search ? location.search.split('=')[1] : '/';
+  const redirectParam = new URLSearchParams(location.search).get('redirect');
+  const redirect =
+    redirectParam && redirectParam.startsWith('/')
+      ? redirectParam
+      : '/';
 
   const { email, password, isAdmin } = user;
 

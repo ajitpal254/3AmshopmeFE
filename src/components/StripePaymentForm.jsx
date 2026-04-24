@@ -15,9 +15,7 @@ const StripePaymentForm = ({ orderId, amount, onSuccess }) => {
     const currencyState = useSelector((state) => state.currencyState);
     const { currency } = currencyState;
 
-    // Calculate display amount and payment amount
     const displayAmount = currency === 'CAD' ? amount * EXCHANGE_RATE : amount;
-    const paymentAmount = Math.round(displayAmount * 100); // In cents
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -29,9 +27,8 @@ const StripePaymentForm = ({ orderId, amount, onSuccess }) => {
         }
 
         try {
-            // 1. Create PaymentIntent on the backend
             const { data: { clientSecret } } = await api.post('/api/payment/create-payment-intent', {
-                amount: paymentAmount,
+                orderId,
                 currency: currency.toLowerCase(),
             });
 

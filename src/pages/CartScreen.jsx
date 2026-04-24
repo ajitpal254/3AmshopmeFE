@@ -49,7 +49,7 @@ const CartScreen = () => {
     }
 
     const checkoutHandler = () => {
-        navigate('/app/login?redirect=shipping')
+        navigate('/app/login?redirect=/shipping')
     }
 
     const handleApplyCoupon = async () => {

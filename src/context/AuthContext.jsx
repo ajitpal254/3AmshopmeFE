@@ -86,12 +86,20 @@ export const AuthProvider = ({ children }) => {
     const signupUser = async (userData) => {
         try {
             const { data } = await api.post('/app/signup', userData);
-            // Auto login after signup? Or just redirect to login.
-            // Let's assume auto-login for now if token is returned, else return data
+
             if (data.token) {
+                const normalizedUser = data.user || {
+                    _id: data._id,
+                    name: data.name,
+                    email: data.email,
+                    phone: data.phone,
+                    isAdmin: data.isAdmin || false,
+                    isVerified: data.isVerified,
+                };
+
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userInfo', JSON.stringify(data.user));
-                setUser(data.user);
+                localStorage.setItem('userInfo', JSON.stringify(normalizedUser));
+                setUser(normalizedUser);
             }
             return data;
         } catch (error) {
